@@ -6,7 +6,7 @@ This project involves building a simple robot arm with a mobile base using an Ar
 
 1. **Arduino Board**: Central controller.
 2. **SG90 Servos**: 4 servos for controlling the robot arm's degrees of freedom (DOF) and gripper.
-3. **DC Motors**: 2 motors for driving the robot base.
+3. **DC Motors**: 2 or 4 motors for driving the robot base.
 4. **L298N Motor Driver**: Motor driver for controlling the DC motors.
 5. **TCS34725 Color Sensor**: Color sensor to detect the target color (red).
 6. **HC-SR04 Ultrasonic Sensor**: Ultrasonic sensor for distance measurement.
@@ -51,10 +51,10 @@ This project involves building a simple robot arm with a mobile base using an Ar
 
 The project is organized into four main components:
 
-1. **BaseControl**: Handles movement of the robot base (forward, backward, turn left, turn right).
-2. **ArmControl**: Controls the robot arm's movements (pick up, drop, move to object, scan).
-3. **SensorControl**: Interfaces with the color and ultrasonic sensors.
-4. **Main.ino**: Coordinates the overall functionality, including scanning, movement, and object handling.
+- *BaseControl* : Handles movement of the robot base (forward, backward, turn left, turn right).
+- *ArmControl* : Controls the robot arm's movements (pick up, drop, move to object, scan).
+- *SensorControl* : Interfaces with the color and ultrasonic sensors.
+- *Main.ino* : Coordinates the overall functionality, including scanning, movement, and object handling.
 
 ### BaseControl
 
@@ -77,6 +77,13 @@ Combines the functionality of the base control, arm control, and sensor control.
 1. **Setup**: Connect all components according to the pinout tables.
 2. **Upload**: Upload the code to the Arduino using the Arduino IDE.
 3. **Operation**: The robot arm will start scanning for the target color. When the target is detected, it will move to the object, pick it up, and perform a drop action. If no target is detected, it will enter sleep mode and resume scanning after 1 minute.
+
+    **also here was the test code to test the components per major part** :
+
+    located at test code folder.
+    - `test_arm.ino` : to test the robot Arm movement
+    - `test_motor.ino` : to test the base/body of the robot
+    - `test_sensors.ino` : to test the TCS34725 color sensor and the HC-SR04 ultrasonic distance sensor
 
 ## Wiring Diagram
 
