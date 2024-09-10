@@ -83,11 +83,13 @@ Combines the functionality of the base control, arm control, and sensor control.
     located at test code folder.
     - `test_arm.ino` : to test the robot Arm movement
     - `test_motor.ino` : to test the base/body of the robot
+    - `test_body.ino` : to test the base + ultrasonic
     - `test_sensors.ino` : to test the TCS34725 color sensor and the HC-SR04 ultrasonic distance sensor
 
     here some simulation for it:
     - [test arm](https://wokwi.com/projects/408620451728441345)
     - [test body](https://wokwi.com/projects/408652834209415169)
+    - [test body + ultrasonic](https://wokwi.com/projects/408655480325044225)
 
 ## Wiring Diagram
 
