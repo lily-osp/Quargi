@@ -7,8 +7,9 @@ const int MOTOR1_EN_PIN = 9;   // Motor 1 enable pin (speed control)
 const int MOTOR2_EN_PIN = 10;  // Motor 2 enable pin (speed control)
 
 // Define movement parameters
-const int MOTOR_SPEED = 200;  // Speed of motors (0 to 255)
-const int MOVE_DURATION = 2000;  // Duration for each movement (milliseconds)
+const int MOTOR_SPEED = 200;    // Speed of motors (0 to 255)
+const int MOVE_DURATION = 2000; // Duration for each movement (milliseconds)
+const int ROTATE_DURATION = 1800; // Duration for 180-degree rotation (milliseconds)
 
 void setup() {
   // Initialize motor control pins as outputs
@@ -44,6 +45,16 @@ void loop() {
   turnRight();
   delay(MOVE_DURATION);
 
+  // Test rotate left 180 degrees
+  Serial.println("Testing Rotate Left (180 degrees)...");
+  rotateLeft();
+  delay(ROTATE_DURATION);
+
+  // Test rotate right 180 degrees
+  Serial.println("Testing Rotate Right (180 degrees)...");
+  rotateRight();
+  delay(ROTATE_DURATION);
+
   // Stop motors after testing
   Serial.println("Stopping Motors...");
   stopMotors();
@@ -72,7 +83,27 @@ void moveBackward() {
 
 // Function to turn left
 void turnLeft() {
-  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);  // Set motor speed
+  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);  // Set motor speed for one motor
+  analogWrite(MOTOR2_EN_PIN, 0);
+  digitalWrite(MOTOR1_IN1_PIN, LOW);
+  digitalWrite(MOTOR1_IN2_PIN, HIGH);
+  digitalWrite(MOTOR2_IN3_PIN, LOW);
+  digitalWrite(MOTOR2_IN4_PIN, LOW);
+}
+
+// Function to turn right
+void turnRight() {
+  analogWrite(MOTOR1_EN_PIN, 0);
+  analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);  // Set motor speed for one motor
+  digitalWrite(MOTOR1_IN1_PIN, LOW);
+  digitalWrite(MOTOR1_IN2_PIN, LOW);
+  digitalWrite(MOTOR2_IN3_PIN, LOW);
+  digitalWrite(MOTOR2_IN4_PIN, HIGH);
+}
+
+// Function to rotate 180 degrees to the left
+void rotateLeft() {
+  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);  // Set motor speed for both motors
   analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);
   digitalWrite(MOTOR1_IN1_PIN, LOW);
   digitalWrite(MOTOR1_IN2_PIN, HIGH);
@@ -80,9 +111,9 @@ void turnLeft() {
   digitalWrite(MOTOR2_IN4_PIN, LOW);
 }
 
-// Function to turn right
-void turnRight() {
-  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);  // Set motor speed
+// Function to rotate 180 degrees to the right
+void rotateRight() {
+  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);  // Set motor speed for both motors
   analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);
   digitalWrite(MOTOR1_IN1_PIN, HIGH);
   digitalWrite(MOTOR1_IN2_PIN, LOW);
