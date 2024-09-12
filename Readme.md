@@ -90,6 +90,7 @@ Combines the functionality of the base control, arm control, and sensor control.
     - [test arm](https://wokwi.com/projects/408620451728441345)
     - [test body](https://wokwi.com/projects/408652834209415169)
     - [test body + ultrasonic](https://wokwi.com/projects/408655480325044225)
+    - [test body + arm](https://wokwi.com/projects/408848638325889025)
 
 ## Wiring Diagram
 
