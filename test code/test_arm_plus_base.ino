@@ -1,178 +1,132 @@
 #include <Servo.h>
 
-// Define servos
-Servo baseServo;
-Servo shoulderServo;
-Servo elbowServo;
-Servo gripperServo;
+// Servo Definitions
+Servo baseServo, shoulderServo, elbowServo, gripperServo;
 
-// Define servo pin assignments
-const int BASE_SERVO_PIN = 2;
-const int SHOULDER_SERVO_PIN = 7;
-const int ELBOW_SERVO_PIN = 8;
-const int GRIPPER_SERVO_PIN = 11;
+// Pin Assignments
+const int BASE_SERVO_PIN = 2, SHOULDER_SERVO_PIN = 7, ELBOW_SERVO_PIN = 8, GRIPPER_SERVO_PIN = 11;
+const int MOTOR1_IN1_PIN = 3, MOTOR1_IN2_PIN = 4, MOTOR2_IN3_PIN = 5, MOTOR2_IN4_PIN = 6;
+const int MOTOR1_EN_PIN = 9, MOTOR2_EN_PIN = 10;
+const int TRIG_PIN = 12, ECHO_PIN = 13;
 
-// Define arm movement parameters
-const int BASE_MIN_ANGLE = 0;
-const int BASE_MAX_ANGLE = 180;
-const int SHOULDER_MIN_ANGLE = 0;
-const int SHOULDER_MAX_ANGLE = 180;
-const int ELBOW_MIN_ANGLE = 0;
-const int ELBOW_MAX_ANGLE = 180;
-const int GRIPPER_OPEN_ANGLE = 0;
-const int GRIPPER_CLOSE_ANGLE = 90;
+// Servo Movement Parameters
+const int BASE_MIN_ANGLE = 0, BASE_MAX_ANGLE = 180;
+const int SHOULDER_MIN_ANGLE = 0, SHOULDER_MAX_ANGLE = 180;
+const int ELBOW_MIN_ANGLE = 0, ELBOW_MAX_ANGLE = 180;
+const int GRIPPER_OPEN_ANGLE = 0, GRIPPER_CLOSE_ANGLE = 90;
 
-// Define middle (home) positions for each servo
+// Home Positions
 const int BASE_HOME_ANGLE = (BASE_MIN_ANGLE + BASE_MAX_ANGLE) / 2;
 const int SHOULDER_HOME_ANGLE = (SHOULDER_MIN_ANGLE + SHOULDER_MAX_ANGLE) / 2;
 const int ELBOW_HOME_ANGLE = (ELBOW_MIN_ANGLE + ELBOW_MAX_ANGLE) / 2;
 const int GRIPPER_HOME_ANGLE = GRIPPER_OPEN_ANGLE;
 
-// Define delay parameters
-const int DELAY_MS = 50;
-const int GRIPPER_DELAY_MS = 200;
+// Timing Parameters
+const int DELAY_MS = 50, GRIPPER_DELAY_MS = 200;
+const int MOVE_DURATION = 2000, TURN_DELAY = 1000;
 
-// Define motor control pins
-const int MOTOR1_IN1_PIN = 3;
-const int MOTOR1_IN2_PIN = 4;
-const int MOTOR2_IN3_PIN = 5;
-const int MOTOR2_IN4_PIN = 6;
-const int MOTOR1_EN_PIN = 9;
-const int MOTOR2_EN_PIN = 10;
-
-// Define ultrasonic sensor pins
-#define TRIG_PIN 12
-#define ECHO_PIN 13
-
-// Define movement parameters
+// Movement Parameters
 const int MOTOR_SPEED = 200;
-const int MOVE_DURATION = 2000;
 const int OBSTACLE_DISTANCE = 15;
-const int TURN_DELAY = 1000;
+
+// Obstacle detection parameters
+const unsigned long OBSTACLE_CHECK_INTERVAL = 100; // Check every 100ms
+unsigned long lastObstacleCheckTime = 0;
+bool obstacleDetected = false;
 
 void setup() {
-  // Initialize servos
+  initializeServos();
+  initializeMotors();
+  initializeUltrasonicSensor();
+  initializeSerialAndRandom();
+}
+
+void loop() {
+  unsigned long currentTime = millis();
+
+  // Check for obstacles periodically
+  if (currentTime - lastObstacleCheckTime >= OBSTACLE_CHECK_INTERVAL) {
+    checkForObstacles();
+    lastObstacleCheckTime = currentTime;
+  }
+
+  if (obstacleDetected) {
+    handleObstacle();
+  } else {
+    testArmMovements();
+    testBaseMovements();
+  }
+}
+
+// Initialization Functions
+void initializeServos() {
   baseServo.attach(BASE_SERVO_PIN);
   shoulderServo.attach(SHOULDER_SERVO_PIN);
   elbowServo.attach(ELBOW_SERVO_PIN);
   gripperServo.attach(GRIPPER_SERVO_PIN);
+}
 
-  // Initialize motor control pins as outputs
+void initializeMotors() {
   pinMode(MOTOR1_IN1_PIN, OUTPUT);
   pinMode(MOTOR1_IN2_PIN, OUTPUT);
   pinMode(MOTOR2_IN3_PIN, OUTPUT);
   pinMode(MOTOR2_IN4_PIN, OUTPUT);
   pinMode(MOTOR1_EN_PIN, OUTPUT);
   pinMode(MOTOR2_EN_PIN, OUTPUT);
+}
 
-  // Initialize ultrasonic sensor pins
+void initializeUltrasonicSensor() {
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
+}
 
+void initializeSerialAndRandom() {
   Serial.begin(9600);
-  Serial.println("Starting Combined Robot Arm and Base Test...");
-
-  // Seed the random generator
+  Serial.println("Starting Combined Robot Arm and Base Test with Periodic Obstacle Avoidance...");
   randomSeed(analogRead(0));
 }
 
-void loop() {
-  // Test arm movements
-  testArmMovements();
-
-  // Test base movements with obstacle avoidance
-  testBaseMovements();
+// Obstacle Detection and Handling
+void checkForObstacles() {
+  float distance = readUltrasonic();
+  obstacleDetected = (distance < OBSTACLE_DISTANCE);
 }
 
-// Function to test arm movements
+void handleObstacle() {
+  Serial.println("Obstacle detected! Stopping and turning...");
+  stopMotors();
+  delay(TURN_DELAY);
+  turnRight();
+  delay(TURN_DELAY);
+  stopMotors();
+}
+
+// Arm Movement Functions
 void testArmMovements() {
   Serial.println("Testing Arm Movements...");
-
-  // Initial testing of each servo one by one
-  Serial.println("Initial Testing of Each Servo One by One...");
-  testBaseServo();
-  testShoulderServo();
-  testElbowServo();
-  testGripperServo();
-
+  testIndividualServos();
   delay(3000);
-
   backToHome();
-
-  // Dynamic and random testing
-  Serial.println("Starting Random and Combined Arm Movements...");
   performRandomArmMovements();
-
   delay(1000);
 }
 
-// Function to test base movements with obstacle avoidance
-void testBaseMovements() {
-  Serial.println("Testing Base Movements with Obstacle Avoidance...");
-
-  // Read distance from ultrasonic sensor
-  float distance = readUltrasonic();
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
-
-  if (distance > OBSTACLE_DISTANCE) {
-    // Test forward movement
-    Serial.println("Moving Forward...");
-    moveForward();
-    delay(MOVE_DURATION);
-
-    // Test backward movement
-    Serial.println("Moving Backward...");
-    moveBackward();
-    delay(MOVE_DURATION);
-
-    // Test left turn
-    Serial.println("Turning Left...");
-    turnLeft();
-    delay(MOVE_DURATION);
-
-    // Test right turn
-    Serial.println("Turning Right...");
-    turnRight();
-    delay(MOVE_DURATION);
-
-    // Stop motors
-    Serial.println("Stopping Motors...");
-    stopMotors();
-    delay(2000);
-  } else {
-    // If obstacle detected, stop and turn
-    Serial.println("Obstacle detected. Stopping and turning...");
-    stopMotors();
-    delay(TURN_DELAY);
-    turnRight();
-    delay(TURN_DELAY);
-  }
+void testIndividualServos() {
+  Serial.println("Initial Testing of Each Servo One by One...");
+  testServo("Base", baseServo, BASE_MIN_ANGLE, BASE_MAX_ANGLE);
+  testServo("Shoulder", shoulderServo, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
+  testServo("Elbow", elbowServo, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
+  testGripperServo();
 }
 
-// Arm movement functions
-void testBaseServo() {
-  Serial.println("Testing Base Servo...");
-  moveServo(baseServo, BASE_MIN_ANGLE, BASE_MAX_ANGLE);
+void testServo(const char* servoName, Servo& servo, int minAngle, int maxAngle) {
+  Serial.print("Testing ");
+  Serial.print(servoName);
+  Serial.println(" Servo...");
+  moveServo(servo, minAngle, maxAngle);
 }
 
-void testShoulderServo() {
-  Serial.println("Testing Shoulder Servo...");
-  moveServo(shoulderServo, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
-}
-
-void testElbowServo() {
-  Serial.println("Testing Elbow Servo...");
-  moveServo(elbowServo, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
-}
-
-void testGripperServo() {
-  Serial.println("Testing Gripper Servo...");
-  testGripper(gripperServo);
-}
-
-void moveServo(Servo &servo, int minAngle, int maxAngle) {
+void moveServo(Servo& servo, int minAngle, int maxAngle) {
   for (int pos = minAngle; pos <= maxAngle; pos += 10) {
     servo.write(pos);
     delay(DELAY_MS);
@@ -183,77 +137,55 @@ void moveServo(Servo &servo, int minAngle, int maxAngle) {
   }
 }
 
-void testGripper(Servo &servo) {
-  servo.write(GRIPPER_OPEN_ANGLE);
+void testGripperServo() {
+  Serial.println("Testing Gripper Servo...");
+  gripperServo.write(GRIPPER_OPEN_ANGLE);
   delay(GRIPPER_DELAY_MS);
-  servo.write(GRIPPER_CLOSE_ANGLE);
+  gripperServo.write(GRIPPER_CLOSE_ANGLE);
   delay(GRIPPER_DELAY_MS);
 }
 
 void performRandomArmMovements() {
+  Serial.println("Starting Random and Combined Arm Movements...");
   for (int i = 0; i < 5; i++) {
-    int randomTest = random(1, 5);
-
-    switch (randomTest) {
-      case 1:
-        Serial.println("Random Base Servo Movement...");
-        randomMoveServo(baseServo, BASE_MIN_ANGLE, BASE_MAX_ANGLE);
-        break;
-      case 2:
-        Serial.println("Random Shoulder Servo Movement...");
-        randomMoveServo(shoulderServo, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
-        break;
-      case 3:
-        Serial.println("Random Elbow Servo Movement...");
-        randomMoveServo(elbowServo, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
-        break;
-      case 4:
-        Serial.println("Random Gripper Movement...");
-        randomGripper(gripperServo);
-        break;
-    }
-
+    performRandomMove();
     delay(500);
   }
-
-  Serial.println("Performing Combined Random Movement...");
-  combinedRandomMovement();
-
-  Serial.println("Performing Complex Movement Sequences...");
-  complexMovementSequence1();
-  complexMovementSequence2();
-  complexMovementSequence3();
-  complexMovementSequence4();
-
+  performComplexMovements();
   backToHome();
 }
 
-void randomMoveServo(Servo &servo, int minAngle, int maxAngle) {
+void performRandomMove() {
+  int randomTest = random(1, 5);
+  switch (randomTest) {
+    case 1: randomMoveServo("Base", baseServo, BASE_MIN_ANGLE, BASE_MAX_ANGLE); break;
+    case 2: randomMoveServo("Shoulder", shoulderServo, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE); break;
+    case 3: randomMoveServo("Elbow", elbowServo, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE); break;
+    case 4: randomGripper(); break;
+  }
+}
+
+void randomMoveServo(const char* servoName, Servo& servo, int minAngle, int maxAngle) {
+  Serial.print("Random ");
+  Serial.print(servoName);
+  Serial.println(" Servo Movement...");
   int randomAngle = random(minAngle, maxAngle);
   servo.write(randomAngle);
   delay(random(100, 500));
 }
 
-void randomGripper(Servo &servo) {
-  int randomGripperAction = random(0, 2);
-  if (randomGripperAction == 0) {
-    servo.write(GRIPPER_OPEN_ANGLE);
-  } else {
-    servo.write(GRIPPER_CLOSE_ANGLE);
-  }
+void randomGripper() {
+  Serial.println("Random Gripper Movement...");
+  gripperServo.write(random(0, 2) == 0 ? GRIPPER_OPEN_ANGLE : GRIPPER_CLOSE_ANGLE);
   delay(GRIPPER_DELAY_MS);
 }
 
-void combinedRandomMovement() {
-  int basePos = random(BASE_MIN_ANGLE, BASE_MAX_ANGLE);
-  int shoulderPos = random(SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
-  int elbowPos = random(ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
-
-  baseServo.write(basePos);
-  shoulderServo.write(shoulderPos);
-  elbowServo.write(elbowPos);
-
-  delay(random(200, 700));
+void performComplexMovements() {
+  Serial.println("Performing Complex Movement Sequences...");
+  complexMovementSequence1();
+  complexMovementSequence2();
+  complexMovementSequence3();
+  complexMovementSequence4();
 }
 
 void complexMovementSequence1() {
@@ -320,60 +252,76 @@ void backToHome() {
   delay(500);
 }
 
-// Base movement and sensor functions
+// Base Movement Functions
+void testBaseMovements() {
+  Serial.println("Testing Base Movements with Obstacle Avoidance...");
+  float distance = readUltrasonic();
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  if (distance > OBSTACLE_DISTANCE) {
+    performBaseMovements();
+  } else {
+    handleObstacle();
+  }
+}
+
+void performBaseMovements() {
+  moveAndPause("Moving Forward...", moveForward);
+  moveAndPause("Moving Backward...", moveBackward);
+  moveAndPause("Turning Left...", turnLeft);
+  moveAndPause("Turning Right...", turnRight);
+  Serial.println("Stopping Motors...");
+  stopMotors();
+  delay(2000);
+}
+
+void moveAndPause(const char* message, void (*moveFunction)()) {
+  Serial.println(message);
+  moveFunction();
+  delay(MOVE_DURATION);
+}
+
+// Ultrasonic Sensor Function
 float readUltrasonic() {
   digitalWrite(TRIG_PIN, LOW);
   delayMicroseconds(2);
   digitalWrite(TRIG_PIN, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
-
   long duration = pulseIn(ECHO_PIN, HIGH);
-  float distance = (duration * 0.034) / 2;
-  return distance;
+  return (duration * 0.034) / 2;
 }
 
+// Motor Control Functions
 void moveForward() {
-  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);
-  analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);
-  digitalWrite(MOTOR1_IN1_PIN, HIGH);
-  digitalWrite(MOTOR1_IN2_PIN, LOW);
-  digitalWrite(MOTOR2_IN3_PIN, HIGH);
-  digitalWrite(MOTOR2_IN4_PIN, LOW);
+  setMotorDirection(HIGH, LOW, HIGH, LOW);
 }
 
 void moveBackward() {
-  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);
-  analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);
-  digitalWrite(MOTOR1_IN1_PIN, LOW);
-  digitalWrite(MOTOR1_IN2_PIN, HIGH);
-  digitalWrite(MOTOR2_IN3_PIN, LOW);
-  digitalWrite(MOTOR2_IN4_PIN, HIGH);
+  setMotorDirection(LOW, HIGH, LOW, HIGH);
 }
 
 void turnLeft() {
-  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);
-  analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);
-  digitalWrite(MOTOR1_IN1_PIN, LOW);
-  digitalWrite(MOTOR1_IN2_PIN, HIGH);
-  digitalWrite(MOTOR2_IN3_PIN, HIGH);
-  digitalWrite(MOTOR2_IN4_PIN, LOW);
+  setMotorDirection(LOW, HIGH, HIGH, LOW);
 }
 
 void turnRight() {
-  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);
-  analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);
-  digitalWrite(MOTOR1_IN1_PIN, HIGH);
-  digitalWrite(MOTOR1_IN2_PIN, LOW);
-  digitalWrite(MOTOR2_IN3_PIN, LOW);
-  digitalWrite(MOTOR2_IN4_PIN, HIGH);
+  setMotorDirection(HIGH, LOW, LOW, HIGH);
 }
 
 void stopMotors() {
   analogWrite(MOTOR1_EN_PIN, 0);
   analogWrite(MOTOR2_EN_PIN, 0);
-  digitalWrite(MOTOR1_IN1_PIN, LOW);
-  digitalWrite(MOTOR1_IN2_PIN, LOW);
-  digitalWrite(MOTOR2_IN3_PIN, LOW);
-  digitalWrite(MOTOR2_IN4_PIN, LOW);
+  setMotorDirection(LOW, LOW, LOW, LOW);
+}
+
+void setMotorDirection(int in1, int in2, int in3, int in4) {
+  digitalWrite(MOTOR1_IN1_PIN, in1);
+  digitalWrite(MOTOR1_IN2_PIN, in2);
+  digitalWrite(MOTOR2_IN3_PIN, in3);
+  digitalWrite(MOTOR2_IN4_PIN, in4);
+  analogWrite(MOTOR1_EN_PIN, MOTOR_SPEED);
+  analogWrite(MOTOR2_EN_PIN, MOTOR_SPEED);
 }
