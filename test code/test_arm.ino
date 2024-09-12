@@ -7,9 +7,9 @@ Servo elbowServo;
 Servo gripperServo;
 
 // Define pin assignments
-const int BASE_SERVO_PIN = 7;
-const int SHOULDER_SERVO_PIN = 8;
-const int ELBOW_SERVO_PIN = 9;
+const int BASE_SERVO_PIN = 2;
+const int SHOULDER_SERVO_PIN = 7;
+const int ELBOW_SERVO_PIN = 8;
 const int GRIPPER_SERVO_PIN = 11;
 
 // Define movement parameters

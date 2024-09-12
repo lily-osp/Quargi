@@ -8,9 +8,9 @@ Servo elbowServo;
 Servo gripperServo;
 
 // Servo pin definitions
-const int basePin = 7;
-const int shoulderPin = 8;
-const int elbowPin = 9;
+const int basePin = 2;
+const int shoulderPin = 7;
+const int elbowPin = 8;
 const int gripperPin = 11;
 
 void initArm() {
