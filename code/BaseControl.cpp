@@ -1,4 +1,5 @@
 #include "BaseControl.h"
+#include <Arduino.h>
 
 // Motor driver pins (L298N)
 const int motor1Pin1 = 3;

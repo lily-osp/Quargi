@@ -1,11 +1,16 @@
 #include "ArmControl.h"
+#include "SensorControl.h"
 #include <Servo.h>
+#include <Arduino.h>
 
 // Servos for the 4 DOF arm
 Servo baseServo;
 Servo shoulderServo;
 Servo elbowServo;
 Servo gripperServo;
+
+// Define the target color
+const int TARGET_COLOR = RED; 
 
 // Servo pin definitions
 const int basePin = 2;
@@ -52,6 +57,13 @@ void moveToDropLocation() {
     elbowServo.write(90);
 }
 
+void backToHome() {
+    baseServo.write(90);
+    shoulderServo.write(90);
+    elbowServo.write(90);
+    gripperServo.write(0); // Open gripper
+}
+
 void scanForTarget() {
     // Scan movement pattern to find target
     for (int pos = 0; pos <= 180; pos += 10) {
@@ -65,6 +77,6 @@ void scanForTarget() {
 }
 
 void sleepMode() {
-    stop(); // Stop all movements
+    // stop(); // Stop all movements
     delay(60000); // Sleep for 1 minute
 }

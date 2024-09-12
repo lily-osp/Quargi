@@ -6,6 +6,7 @@ void pickUpObject();
 void dropObject();
 void moveToObject();
 void moveToDropLocation();
+void backToHome();
 void scanForTarget();
 void sleepMode();
 
