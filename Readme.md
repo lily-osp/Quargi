@@ -88,13 +88,21 @@ Combines the functionality of the base control, arm control, and sensor control.
 
     here some simulation for it:
     - [test arm](https://wokwi.com/projects/408620451728441345)
+        - ![arm](images/arm.png)
     - [test body](https://wokwi.com/projects/408652834209415169)
+        - ![body only](images/base1.png)
     - [test body + ultrasonic](https://wokwi.com/projects/408655480325044225)
+        - ![body with avoidance](images/base2.png)
     - [test body + arm](https://wokwi.com/projects/408848638325889025)
+        - ![full bot](images/full.png)
 
 ## Wiring Diagram
 
 For a visual representation of the wiring, refer to the schematic diagram provided in the project's repository or create your own based on the pinout tables.
+
+## Flowchart
+
+- ![flowchart](images/flowchart.png)
 
 ## License
 
