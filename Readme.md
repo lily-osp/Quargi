@@ -26,9 +26,9 @@ This project involves building a simple robot arm with a mobile base using an Ar
 ### Arduino to Servos
 | Servo     | Arduino Pin | Description      |
 |-----------|-------------|------------------|
-| Base      | 7           | Base Servo       |
-| Shoulder  | 8           | Shoulder Servo   |
-| Elbow     | 9           | Elbow Servo      |
+| Base      | 2           | Base Servo       |
+| Shoulder  | 7           | Shoulder Servo   |
+| Elbow     | 8           | Elbow Servo      |
 | Gripper   | 11          | Gripper Servo    |
 
 ### Arduino to TCS34725 Color Sensor
@@ -84,7 +84,9 @@ Combines the functionality of the base control, arm control, and sensor control.
     - `test_arm.ino` : to test the robot Arm movement
     - `test_motor.ino` : to test the base/body of the robot
     - `test_body.ino` : to test the base + ultrasonic
-    - `test_sensors.ino` : to test the TCS34725 color sensor and the HC-SR04 ultrasonic distance sensor
+    - `test_sensors.ino` : to test the TCS34725 color sensor and the HC-SR04
+    - `test_full.ino` : to test the base + arm + ultrasonic
+    ultrasonic distance sensor
 
     here some simulation for it:
     - [test arm](https://wokwi.com/projects/408620451728441345)
