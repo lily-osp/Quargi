@@ -36,7 +36,7 @@ void loop() {
             lastScanTime = currentTime;
         } else {
             // Sleep if no target detected
-            sleepMode();
+            sleepMode();  
         }
     }
 }
