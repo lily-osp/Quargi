@@ -9,9 +9,10 @@
 6. [Code Explanation](#code-explanation)
 7. [Usage Guide](#usage-guide)
 8. [Customization and Tuning](#customization-and-tuning)
-9. [Troubleshooting](#troubleshooting)
-10. [Future Improvements](#future-improvements)
-11. [Safety Considerations](#safety-considerations)
+9. [Flowchart](#flowchart)
+10. [Troubleshooting](#troubleshooting)
+11. [Future Improvements](#future-improvements)
+12. [Safety Considerations](#safety-considerations)
 
 ## Overview
 
@@ -213,6 +214,46 @@ In `Arduino_Uno_RedObjectTrackingArm.ino`:
   currentBaseAngle = min(currentBaseAngle + 1, BASE_MAX_ANGLE);
   // Increase the increment for faster movements
   ```
+
+## Flowchart
+
+```mermaid
+graph TD
+    A[Start] --> B[ESP32-CAM Initialization]
+    B --> C[Arduino Uno Initialization]
+    C --> D[Move Arm to Home Position]
+    D --> E[ESP32-CAM Capture Image]
+    E --> F{Detect Red Object?}
+    F -->|Yes| G[Calculate Object Coordinates]
+    F -->|No| E
+    G --> H[Send Coordinates via I2C]
+    H --> I[Arduino Uno Receive Coordinates]
+    I --> J{Object Centered?}
+    J -->|Yes| E
+    J -->|No| K[Calculate Required Arm Movement]
+    K --> L[Adjust Servo Positions]
+    L --> E
+
+    subgraph ESP32-CAM Operations
+    B
+    E
+    F
+    G
+    H
+    end
+
+    subgraph Arduino Uno Operations
+    C
+    D
+    I
+    J
+    K
+    L
+    end
+
+    style ESP32-CAM Operations fill:#f9f,stroke:#333,stroke-width:2px
+    style Arduino Uno Operations fill:#bbf,stroke:#333,stroke-width:2px
+```
 
 ## Troubleshooting
 
