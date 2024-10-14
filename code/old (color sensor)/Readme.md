@@ -26,7 +26,7 @@ This project involves building a simple robot arm with a mobile base using an Ar
 ### Arduino to Servos
 | Servo     | Arduino Pin | Description      |
 |-----------|-------------|------------------|
-| Base      | 2           | Base Servo       |
+| Base      | 13           | Base Servo       |
 | Shoulder  | 7           | Shoulder Servo   |
 | Elbow     | 8           | Elbow Servo      |
 | Gripper   | 11          | Gripper Servo    |
@@ -43,7 +43,7 @@ This project involves building a simple robot arm with a mobile base using an Ar
 | Sensor Pin | Arduino Pin | Description     |
 |------------|-------------|-----------------|
 | Trig       | 12          | Trigger Pin     |
-| Echo       | 13          | Echo Pin        |
+| Echo       | 2           | Echo Pin        |
 | VCC        | 5V          | Power Supply    |
 | GND        | GND         | Ground          |
 

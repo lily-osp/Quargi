@@ -8,7 +8,7 @@ const int MOTOR2_EN_PIN = 10;  // Motor 2 enable pin (speed control)
 
 // Define ultrasonic sensor pins
 #define TRIG_PIN 12  // Pin for the ultrasonic sensor trigger
-#define ECHO_PIN 13  // Pin for the ultrasonic sensor echo
+#define ECHO_PIN 2  // Pin for the ultrasonic sensor echo
 
 // Define movement parameters
 const int MOTOR_SPEED = 200;  // Speed of motors (0 to 255)

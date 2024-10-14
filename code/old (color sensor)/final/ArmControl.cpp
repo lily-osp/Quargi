@@ -13,7 +13,7 @@ Servo gripperServo;
 const int TARGET_COLOR = RED; 
 
 // Servo pin definitions
-const int basePin = 2;
+const int basePin = 13;
 const int shoulderPin = 7;
 const int elbowPin = 8;
 const int gripperPin = 11;

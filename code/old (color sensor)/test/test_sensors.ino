@@ -3,7 +3,7 @@
 
 // Include libraries for sensors
 #define TRIG_PIN 12  // Pin for the ultrasonic sensor trigger
-#define ECHO_PIN 13  // Pin for the ultrasonic sensor echo
+#define ECHO_PIN 2  // Pin for the ultrasonic sensor echo
 
 // Initialize color sensor
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);

@@ -7,7 +7,7 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 
 // Ultrasonic sensor pins
 const int trigPin = 12;
-const int echoPin = 13;
+const int echoPin = 2;
 
 void initSensors() {
     pinMode(trigPin, OUTPUT);

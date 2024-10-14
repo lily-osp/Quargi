@@ -4,10 +4,10 @@
 Servo baseServo, shoulderServo, elbowServo, gripperServo;
 
 // Pin Assignments
-const int BASE_SERVO_PIN = 2, SHOULDER_SERVO_PIN = 7, ELBOW_SERVO_PIN = 8, GRIPPER_SERVO_PIN = 11;
+const int BASE_SERVO_PIN = 13, SHOULDER_SERVO_PIN = 7, ELBOW_SERVO_PIN = 8, GRIPPER_SERVO_PIN = 11;
 const int MOTOR1_IN1_PIN = 3, MOTOR1_IN2_PIN = 4, MOTOR2_IN3_PIN = 5, MOTOR2_IN4_PIN = 6;
 const int MOTOR1_EN_PIN = 9, MOTOR2_EN_PIN = 10;
-const int TRIG_PIN = 12, ECHO_PIN = 13;
+const int TRIG_PIN = 12, ECHO_PIN = 2;
 
 // Servo Movement Parameters
 const int BASE_MIN_ANGLE = 0, BASE_MAX_ANGLE = 180;
