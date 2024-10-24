@@ -13,6 +13,12 @@ String Feedback = "";
 String Command = "", cmd = "", P1 = "", P2 = "", P3 = "", P4 = "", P5 = "", P6 = "", P7 = "", P8 = "", P9 = "";
 byte ReceiveState = 0, cmdState = 1, strState = 1, questionstate = 0, equalstate = 0, semicolonstate = 0;
 
+// initial coordinate val
+int x_coordinate = 0;
+int y_coordinate = 0;
+int x_widthMid = 320;
+int y_heightMid = 240;
+
 /* AI-Thinker */
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
@@ -35,8 +41,8 @@ WiFiServer server(80);
 
 void ExecuteCommand() {
   if (cmd != "colorDetect") {
-    //Serial.println("cmd= "+cmd+" ,P1= "+P1+" ,P2= "+P2+" ,P3= "+P3+" ,P4= "+P4+" ,P5= "+P5+" ,P6= "+P6+" ,P7= "+P7+" ,P8= "+P8+" ,P9= "+P9);
-    //Serial.println("");
+    // Optional: Debugging output for other commands
+    // Serial.println("cmd= "+cmd+" ,P1= "+P1+" ,P2= "+P2+" ,P3= "+P3+" ,P4= "+P4+" ,P5= "+P5+" ,P6= "+P6+" ,P7= "+P7+" ,P8= "+P8+" ,P9= "+P9);
   }
 
   if (cmd == "resetwifi") {
@@ -56,6 +62,48 @@ void ExecuteCommand() {
   else if (cmd == "restart") {
     ESP.restart();
   }
+  else if (cmd == "cm") {
+    x_coordinate = P1.toInt(); // P1 is the X coordinate
+    y_coordinate = P2.toInt(); // P2 is the Y coordinate
+
+    // Calculate offsets from the center of the screen
+    int x_offset = x_coordinate - x_widthMid;
+    int y_offset = y_coordinate - y_heightMid;
+
+    // Send coordinate data to the serial monitor
+    Serial.println("Received Coordinates:");
+    Serial.print("X Position: "); 
+    Serial.print(x_coordinate);
+    Serial.print(" (Offset from center: "); 
+    Serial.print(x_offset); 
+    Serial.println(")");
+
+    Serial.print("Y Position: "); 
+    Serial.print(y_coordinate);
+    Serial.print(" (Offset from center: "); 
+    Serial.print(y_offset); 
+    Serial.println(")");
+    
+    // Check and print additional conditions or actions based on the coordinates
+    if (x_offset > 0) {
+      Serial.println("Object is to the right of the center.");
+    } else if (x_offset < 0) {
+      Serial.println("Object is to the left of the center.");
+    } else {
+      Serial.println("Object is centered horizontally.");
+    }
+
+    if (y_offset > 0) {
+      Serial.println("Object is below the center.");
+    } else if (y_offset < 0) {
+      Serial.println("Object is above the center.");
+    } else {
+      Serial.println("Object is centered vertically.");
+    }
+
+    // Provide feedback
+    Feedback = "Position Data - X: " + String(x_coordinate) + ", Y: " + String(y_coordinate);
+  }
   else if (cmd == "quality") {
     sensor_t * s = esp_camera_sensor_get();
     int val = P1.toInt();
@@ -74,6 +122,7 @@ void ExecuteCommand() {
   else {
     Feedback = "Command is not defined.";
   }
+
   if (Feedback == "") {
     Feedback = Command;
   }
@@ -261,11 +310,11 @@ void getCommand(char c) {
     if ((cmdState == 0) && (strState == 3) && (c != ';')) P3 = P3 + String(c);
     if ((cmdState == 0) && (strState == 4) && (c != ';')) P4 = P4 + String(c);
     if ((cmdState == 0) && (strState == 5) && (c != ';')) P5 = P5 + String(c);
-    if ((cmdState == 0) && (strState == 6) && (c != ';')) P6 = P6 + String(c);
+    if ((cmdState == 0) && (strState == 6) && (c != ';')) P     6 = P6 + String(c);
     if ((cmdState == 0) && (strState == 7) && (c != ';')) P7 = P7 + String(c);
     if ((cmdState == 0) && (strState == 8) && (c != ';')) P8 = P8 + String(c);
     if ((cmdState == 0) && (strState >= 9) && ((c != ';') || (semicolonstate == 1))) P9 = P9 + String(c);
-    if (c == '?') questionstate = 1;
+    if (c == '?') questionstate = 1;      
     if (c == '=') equalstate = 1;
     if ((strState >= 9) && (c == ';')) semicolonstate = 1;
   }
