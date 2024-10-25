@@ -125,6 +125,26 @@ void RobotArm::performWave() {
   moveToHome();
 }
 
+void RobotArm::performBow() {
+  moveToHome();
+  moveToAngle(shoulderServo, &shoulderAngle, 60);
+  moveToAngle(elbowServo, &elbowAngle, 30);
+  delay(1000);
+  moveToAngle(shoulderServo, &shoulderAngle, 0);
+  moveToAngle(elbowServo, &elbowAngle, 0);
+  moveToHome();
+}
+
+void RobotArm::performReach() {
+  moveToHome();
+  moveToAngle(shoulderServo, &shoulderAngle, 180);
+  moveToAngle(elbowServo, &elbowAngle, 135);
+  delay(1000);
+  moveToAngle(gripperServo, &gripperAngle, GRIPPER_CLOSE);
+  delay(500);
+  moveToHome();
+}
+
 // Position memory
 void RobotArm::saveCurrentPosition(int posNum) {
   if (posNum >= 1 && posNum <= 3) {
@@ -180,7 +200,7 @@ void RobotArm::executeRecordedCommands() {
   for (int i = 0; i < commandCount; i++) {
     Serial.println("Executing: " + recordedCommands[i]);
     // Command processing logic will be handled in main sketch
-    delay(1000);
+    delay(500);
   }
   Serial.println("Execution completed");
 }

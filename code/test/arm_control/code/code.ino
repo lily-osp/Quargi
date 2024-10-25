@@ -20,6 +20,7 @@ void loop() {
   if (Serial.available() > 0) {
     String command = Serial.readStringUntil('\n');
     command.trim();
+    command.toLowerCase();  // Make command case-insensitive
 
     if (arm.isRecording()) {
       processRecordingMode(command);
@@ -44,7 +45,7 @@ void processCommand(String command) {
         break;
 
       case 'm':
-        if (action == 's') {  // Save position
+        if (command.startsWith("m pos")) {
           int posNum = command.substring(6).toInt();
           arm.saveCurrentPosition(posNum);
         } else if (command.startsWith("m save")) {
@@ -101,6 +102,12 @@ void processMovementCommand(char movement) {
     case 'w':  // Wave
       arm.performWave();
       break;
+    case 'b':  // Bow
+      arm.performBow();
+      break;
+    case 'r':  // Reach
+      arm.performReach();
+      break;
     default:
       Serial.println("Invalid movement command.");
       break;
@@ -118,6 +125,8 @@ void printHelp() {
   Serial.println("   m p - Pick");
   Serial.println("   m d - Drop");
   Serial.println("   m w - Wave");
+  Serial.println("   m b - Bow");
+  Serial.println("   m r - Reach");
   Serial.println("3. Position Memory:");
   Serial.println("   m pos ## - Save current position (1-3)");
   Serial.println("   m save ## - Move to saved position (1-3)");
@@ -130,4 +139,3 @@ void printHelp() {
   Serial.println("   p h - Print this help");
   Serial.println("   p s - Print saved positions");
 }
-

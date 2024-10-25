@@ -21,6 +21,8 @@ class RobotArm {
     void performPick();
     void performDrop();
     void performWave();
+    void performBow();
+    void performReach();
 
     // Position memory
     void saveCurrentPosition(int posNum);
