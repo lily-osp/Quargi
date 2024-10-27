@@ -136,6 +136,10 @@ The interface features a modern, retro-styled design with:
 - Intuitive icons
 - Status notifications
 
+## Flowchart
+
+![flowchart](flowchart.png)
+
 ## Customization
 
 ### Styling
