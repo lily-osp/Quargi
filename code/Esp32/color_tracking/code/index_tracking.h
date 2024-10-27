@@ -1,9 +1,8 @@
-
 static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ESP32-CAMERA COLOR DETECTION</title>
+    <title>ESP32-CAM COLOR DETECTION</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -197,15 +196,18 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
         .video-container {
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 0;
+            height: auto;
         }
 
         #ShowImage, #canvas, #imageMask, #imageCanvas {
             max-width: 100%;
+            width: -webkit-fill-available;
             height: auto;
         }
 
         #textCanvas {
+            width: -webkit-fill-available;
             max-width: 100%;
             height: auto;
             background-color: var(--primary-dark);
@@ -365,6 +367,16 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
                         </tr>
                     </table>
                 </div>
+
+                <div class="section">
+                    <table>
+                        <tr>
+                            <td><button id="invertButton"><span class="material-icons">invert_colors</span> INVERT</button></td>
+                            <td><button id="contourButton"><span class="material-icons">filter_hdr</span> SHOW CONTOUR</button></td>
+                            <td><button id="trackButton"><span class="material-icons">gps_fixed</span> TRACKING</button></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
             <div class="column">
@@ -375,15 +387,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
                 <div class="section">
                     <h2><span class="material-icons">photo</span> Image Canvas</h2>
                     <canvas id="imageCanvas"></canvas>
-                </div>
-                <div class="section">
-                    <table>
-                        <tr>
-                            <td><button id="invertButton"><span class="material-icons">invert_colors</span> INVERT</button></td>
-                            <td><button id="contourButton"><span class="material-icons">filter_hdr</span> SHOW CONTOUR</button></td>
-                            <td><button id="trackButton"><span class="material-icons">gps_fixed</span> TRACKING</button></td>
-                        </tr>
-                    </table>
                 </div>
                 <div class="section">
                     <table>
@@ -441,7 +444,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         var G=0;
         var B=0;
         var A=0;
-
 
         colorDetect.onclick = function (event) {
         clearInterval(myTimer);
@@ -666,11 +668,9 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
         clear_canvas();
 
-
-
         orig = cv.imread(ShowImage);
-        cv.split(orig,rgbaPlanes);  //SPLIT
-        let BP = rgbaPlanes.get(2);  // SELECTED COLOR PLANE
+        cv.split(orig,rgbaPlanes);
+        let BP = rgbaPlanes.get(2);
         let GP = rgbaPlanes.get(1);
         let RP = rgbaPlanes.get(0);
         cv.merge(rgbaPlanes,orig);
@@ -678,7 +678,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         let row = Y_PROBE //180 //275 //225 //150 //130
         let col = X_PROBE //100 //10 //100 //200 //300
         drawColRowText(acols,arows);
-
 
         console.log("ISCONTINUOUS = " + orig.isContinuous());
 
@@ -693,8 +692,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
         drawRGB_PROBE_Text();
 
-
-
         /*************draw probe point*********************/
         let point4 = new cv.Point(col,row);
         cv.circle(src,point4,5,[255,255,255,255],2,cv.LINE_AA,0);
@@ -703,43 +700,31 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         let high = new cv.Mat(src.rows,src.cols,src.type(),[RMAX,GMAX,BMAX,255]);
         let low = new cv.Mat(src.rows,src.cols,src.type(),[RMIN,GMIN,BMIN,0]);
 
-        cv.inRange(src,low,high,mask1);
-        //inRange(source image, lower limit, higher limit, destination image)
+        cv.inRange(src,low,high,mask1); //inRange(source image, lower limit, higher limit, destination image)
+        cv.threshold(mask1,mask,THRESH_MIN,255,cv.THRESH_BINARY); //threshold(source image,destination image,threshold,255,threshold method);
 
-        cv.threshold(mask1,mask,THRESH_MIN,255,cv.THRESH_BINARY);
-        //threshold(source image,destination image,threshold,255,threshold method);
+        if(b_invert==true){cv.bitwise_not(mask,mask2);}
 
-        if(b_invert==true){
-            cv.bitwise_not(mask,mask2);
-        }
         /********************start contours******************************************/
         if(b_tracker == true){
-        try{
-        if(b_invert==false){
-            cv.findContours(mask,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);
-            //findContours(source image, array of contours found, hierarchy of contours
-                // if contours are inside other contours, method of contour data retrieval,
-                //algorithm method)
-        }
-        else{
-            cv.findContours(mask2,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);
-        }
+            try{
+                if(b_invert==false){cv.findContours(mask,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);}
+                else{cv.findContours(mask2,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);}
             console.log("CONTOUR_SIZE = " + contours.size());
 
             //draw contours
             if(b_contour==true){
-            for(let i = 0; i < contours.size(); i++){
-                cv.drawContours(src,contours,i,[0,0,0,255],2,cv.LINE_8,hierarchy,100)
-            }
+                for(let i = 0; i < contours.size(); i++){
+                    cv.drawContours(src,contours,i,[0,0,0,255],2,cv.LINE_8,hierarchy,100)
+                }
             }
 
-        /* Marks the beginning of finding the moments of the contours found */
+            /* Marks the beginning of finding the moments of the contours found */
 
             let cnt;
             let Moments;
             let M00;
             let M10;
-
 
             for(let k = 0; k < contours.size(); k++){
                 cnt = contours.get(k);
@@ -751,16 +736,9 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
             let max_area_arg = MaxAreaArg(M00Array);
             console.log("MAXAREAARG = "+max_area_arg);
 
-            //let TestArray = [0,0,0,15,4,15,2];
-            //let TestArray0 = [];
-            //let max_test_area_arg = MaxAreaArg(TestArray0);
-            //console.log("MAXTESTAREAARG = "+max_test_area_arg);
-
-
-
             let ArgMaxArea = MaxAreaArg(M00Array);
             if(ArgMaxArea >= 0){
-            cnt = contours.get(MaxAreaArg(M00Array));  //use the contour with biggest MOO
+            cnt = contours.get(MaxAreaArg(M00Array));
             //cnt = contours.get(54);
             Moments = cv.moments(cnt,false);
             M00 = Moments.m00;
@@ -791,7 +769,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
             //}
             //***************end min area bounding rect*************************************
 
-
             //***************bounding rect***************************
             let rect = cv.boundingRect(cnt);
             let point1 = new cv.Point(rect.x,rect.y);
@@ -799,7 +776,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
             cv.rectangle(src,point1,point2,[0,0,255,255],2,cv.LINE_AA,0);
             //*************end bounding rect***************************
-
 
             //*************draw center point*********************
             let point3 = new cv.Point(x_cm,y_cm);
@@ -816,14 +792,12 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
             }
             }
 
-
-
-
             cnt.delete();
-        /******************end contours  note cnt line one up*******************************************/
-        drawXCM_YCM_Text();
+            /******************end contours  note cnt line one up*******************************************/
+            drawXCM_YCM_Text();
 
-        }//end try
+            }//end try
+
         catch{
             console.log("ERROR TRACKER NO CONTOUR");
             clear_canvas();
@@ -842,7 +816,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         else{
             cv.imshow('imageMask', mask2);
         }
-        //cv.imshow('imageMask', R);
         cv.imshow('imageCanvas', src);
 
         src.delete();
@@ -856,18 +829,13 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         hierarchy.delete();
         RP.delete();
 
-
-
-
         /********************END COLOR DETECT****************************/
 
         /***************end opencv******************************/
 
-
         setTimeout(function(){colorDetect.click();},500);
 
         }//end detectimage
-
 
         function MaxAreaArg(arr){
             if (arr.length == 0) {
@@ -901,8 +869,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
                 return -2;
             }
         }//end MaxAreaArg
-
-
 
         function clear_canvas(){
             ctx.clearRect(0,0,txtcanvas.width,txtcanvas.height);
