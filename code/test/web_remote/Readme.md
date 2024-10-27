@@ -68,9 +68,6 @@ A web-based interface for controlling a robot with both body movement and roboti
 ## Installation
 
 1. Clone this repository:
-```bash
-git clone https://github.com/yourusername/robot-control-interface.git
-```
 
 2. Open `code.ino` in Arduino IDE
 
