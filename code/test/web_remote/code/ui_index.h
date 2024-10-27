@@ -303,7 +303,7 @@ const char* html = R"html(
                 .then(response => response.text())
                 .then(data => {
                     console.log(data);
-                    M.toast({html: 'Command sent: ' + cmd, classes: 'rounded'});
+                    M.toast({html: 'Command sent: ' + cmd, classes: 'rounded green'});
                 })
                 .catch(error => {
                     console.error('Error:', error);
