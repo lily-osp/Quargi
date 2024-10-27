@@ -135,6 +135,7 @@ void setup() {
   Serial.setDebugOutput(true);
   Serial.println();
 
+  // Initialize camera configuration
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -156,18 +157,18 @@ void setup() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  //init with high specs to pre-allocate larger buffers
+
   if (psramFound()) {
     config.frame_size = FRAMESIZE_UXGA;
-    config.jpeg_quality = 10;  //0-63 lower number means higher quality
+    config.jpeg_quality = 10;  // 0-63 lower number means higher quality
     config.fb_count = 2;
   } else {
     config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 12;  //0-63 lower number means higher quality
+    config.jpeg_quality = 12;  // 0-63 lower number means higher quality
     config.fb_count = 1;
   }
 
-  // camera init
+  // Initialize the camera
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
@@ -175,13 +176,13 @@ void setup() {
     ESP.restart();
   }
 
-  //drop down frame size for higher initial frame rate
-  sensor_t * s = esp_camera_sensor_get();
-  s->set_framesize(s, FRAMESIZE_CIF);  //UXGA|SXGA|XGA|SVGA|VGA|CIF|QVGA|HQVGA|QQVGA
+  // Set the flash LED to always be on
+  pinMode(4, OUTPUT);  // Set GPIO 4 as output
+  digitalWrite(4, HIGH);  // Turn on the LED
 
+  // Configure WiFi
   WiFi.mode(WIFI_AP_STA);
   WiFi.begin(ssid, password);
-
   delay(100);
 
   long int StartTime = millis();

@@ -5,6 +5,7 @@ const char* html = R"html(
 <!DOCTYPE html>
 <html>
 <head>
+    <title>ESP32 WEB REMOTE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
