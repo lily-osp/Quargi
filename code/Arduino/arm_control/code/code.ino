@@ -10,7 +10,7 @@ const int GRIPPER_PIN = 11;
 RobotArm arm(BASE_PIN, SHOULDER_PIN, ELBOW_PIN, GRIPPER_PIN);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   arm.begin();
   printHelp();
 }

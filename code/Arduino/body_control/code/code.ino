@@ -20,7 +20,7 @@ ObstacleAvoidance oa(&motors, &sensor);
 String command = "";
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
     motors.begin();
     sensor.begin();
     oa.begin();
