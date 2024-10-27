@@ -2,8 +2,6 @@
 
 A web-based interface for controlling a robot with both body movement and robotic arm capabilities. This project uses an ESP32 microcontroller to host a web server that provides a responsive, modern UI for robot control.
 
-![Robot Control Interface](https://your-image-url-here.png)
-
 ## Interface Preview
 
 <div align="center">
