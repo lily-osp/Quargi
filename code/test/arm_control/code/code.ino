@@ -1,4 +1,3 @@
-// main.ino
 #include "RobotArm.h"
 
 // Pin definitions

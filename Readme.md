@@ -18,3 +18,6 @@ This repository hosts a dual-system project featuring a **serial-controlled robo
 - **Inter-System Communication**: Seamless serial communication between Arduino and ESP32, ensuring a responsive and synchronized operation.
 - **Robust, Modular Codebase**: The project features clean, modular code, allowing easy adjustments to parameters like target color, movement speed, and more.
 - **Expandable Framework**: This setup is a strong foundation for further enhancements, such as integrating machine learning models on the ESP32 for more complex object recognition.
+
+---
+© 2024 Unified Robot Control System. All rights reserved.
