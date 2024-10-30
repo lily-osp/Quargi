@@ -312,7 +312,7 @@ void getCommand(char c) {
     if ((cmdState == 0) && (strState == 3) && (c != ';')) P3 = P3 + String(c);
     if ((cmdState == 0) && (strState == 4) && (c != ';')) P4 = P4 + String(c);
     if ((cmdState == 0) && (strState == 5) && (c != ';')) P5 = P5 + String(c);
-    if ((cmdState == 0) && (strState == 6) && (c != ';')) P         6 = P6 + String(c);
+    if ((cmdState == 0) && (strState == 6) && (c != ';')) P6 = P6 + String(c);
     if ((cmdState == 0) && (strState == 7) && (c != ';')) P7 = P7 + String(c);
     if ((cmdState == 0) && (strState == 8) && (c != ';')) P8 = P8 + String(c);
     if ((cmdState == 0) && (strState >= 9) && ((c != ';') || (semicolonstate == 1))) P9 = P9 + String(c);
