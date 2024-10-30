@@ -402,554 +402,516 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
             </div>
         </div>
     </div>
-<div class="modal"></div>
-<script>
-var colorDetect = document.getElementById('colorDetect');
-var ShowImage = document.getElementById('ShowImage');
-var canvas = document.getElementById("canvas");
-var context = canvas.getContext("2d");
-var imageMask = document.getElementById("imageMask");
-var imageMaskContext = imageMask.getContext("2d");
-var imageCanvas = document.getElementById("imageCanvas");
-var imageContext = imageCanvas.getContext("2d");
-var txtcanvas = document.getElementById("textCanvas");
-var ctx = txtcanvas.getContext("2d");
-var message = document.getElementById('message');
-var ifr = document.getElementById('ifr');
-var myTimer;
-var restartCount=0;
-const modelPath = 'https://ruisantosdotme.github.io/face-api.js/weights/';
-let currentStream;
-let displaySize = { width:400, height: 296 }
-let faceDetection;
-
-let b_tracker = false;
-let x_cm = 0;
-let y_cm = 0;
-
-let b_invert = false;
-
-let b_contour = false;
-
-var RMAX=50;
-var RMIN=0;
-var GMAX=50;
-var GMIN=0;
-var BMAX=50;
-var BMIN=0;
-var THRESH_MIN=120;
-var X_PROBE=200;
-var Y_PROBE=196;
-var R=0;
-var G=0;
-var B=0;
-var A=0;
-
-
-colorDetect.onclick = function (event) {
-  clearInterval(myTimer);
-  myTimer = setInterval(function(){error_handle();},5000);
-  ShowImage.src=location.origin+'/?colorDetect='+Math.random();
-}
-
-var Module = {
-  onRuntimeInitialized(){onOpenCvReady();}
-}
-
-function onOpenCvReady(){
-  //alert("onOpenCvReady");
-  console.log("OpenCV IS READY!!!");
-  drawReadyText();
-  document.body.classList.remove("loading");
-}
-
-
-function error_handle() {
-  restartCount++;
-  clearInterval(myTimer);
-  if (restartCount<=2) {
-    message.innerHTML = "Get still error. <br>Restart ESP32-CAM "+restartCount+" times.";
-    myTimer = setInterval(function(){colorDetect.click();},10000);
-    ifr.src = document.location.origin+'?restart';
-  }
-  else
-    message.innerHTML = "Get still error. <br>Please close the page and check ESP32-CAM.";
-}
-colorDetect.style.display = "block";
-ShowImage.onload = function (event) {
-  //alert("SHOW IMAGE");
-  console.log("SHOW iMAGE");
-  clearInterval(myTimer);
-  restartCount=0;
-  canvas.setAttribute("width", ShowImage.width);
-  canvas.setAttribute("height", ShowImage.height);
-  canvas.style.display = "block";
-  imageCanvas.setAttribute("width", ShowImage.width);
-  imageCanvas.setAttribute("height", ShowImage.height);
-  imageCanvas.style.display = "block";
-
-  imageMask.setAttribute("width", ShowImage.width);
-  imageMask.setAttribute("height", ShowImage.height);
-  imageMask.style.display = "block";
-
-  context.drawImage(ShowImage,0,0,ShowImage.width,ShowImage.height);
-
-  DetectImage();
-}
-restart.onclick = function (event) {
-  fetch(location.origin+'/?restart=stop');
-}
-quality.onclick = function (event) {
-  fetch(document.location.origin+'/?quality='+this.value+';stop');
-}
-brightness.onclick = function (event) {
-  fetch(document.location.origin+'/?brightness='+this.value+';stop');
-}
-contrast.onclick = function (event) {
-  fetch(document.location.origin+'/?contrast='+this.value+';stop');
-}
-async function DetectImage() {
-  //alert("DETECT IMAGE");
-  console.log("DETECT IMAGE");
-
-  /***************opencv********************************/
-  /* Marks the creation of the src and its characteristics. rows, cols, etc. */
-  let src = cv.imread(ShowImage);
-  arows = src.rows;
-  acols = src.cols;
-  aarea = arows*acols;
-  adepth = src.depth();
-  atype = src.type();
-  achannels = src.channels();
-  console.log("rows = " + arows);
-  console.log("cols = " + acols);
-  console.log("pic area = " + aarea);
-  console.log("depth = " + adepth);
-  console.log("type = " + atype);
-  console.log("channels = " + achannels);
-
-  /******************COLOR DETECT******************************/
-
-  //ANN:6
-  var RMAXslider = document.getElementById("rmax");
-  var RMAXoutput = document.getElementById("RMAXdemo");
-  RMAXoutput.innerHTML = RMAXslider.value;
-  RMAXslider.oninput = function(){
-  RMAXoutput.innerHTML = this.value;
-  RMAX = parseInt(RMAXoutput.innerHTML,10);
-  console.log("RMAX=" + RMAX);
-  }
-
-  console.log("RMAX=" + RMAX);
-
-  var RMINslider = document.getElementById("rmin");
-  var RMINoutput = document.getElementById("RMINdemo");
-  RMINoutput.innerHTML = RMINslider.value;
-  RMINslider.oninput = function(){
-    RMINoutput.innerHTML = this.value;
-    RMIN = parseInt(RMINoutput.innerHTML,10);
-    console.log("RMIN=" + RMIN);
-  }
-  console.log("RMIN=" + RMIN);
-
-  var GMAXslider = document.getElementById("gmax");
-  var GMAXoutput = document.getElementById("GMAXdemo");
-  GMAXoutput.innerHTML = GMAXslider.value;
-  GMAXslider.oninput = function(){
-    GMAXoutput.innerHTML = this.value;
-    GMAX = parseInt(GMAXoutput.innerHTML,10);
-  }
-  console.log("GMAX=" + GMAX);
-
-  var GMINslider = document.getElementById("gmin");
-  var GMINoutput = document.getElementById("GMINdemo");
-  GMINoutput.innerHTML = GMINslider.value;
-  GMINslider.oninput = function(){
-    GMINoutput.innerHTML = this.value;
-    GMIN = parseInt(GMINoutput.innerHTML,10);
-  }
-  console.log("GMIN=" + GMIN);
-
-  var BMAXslider = document.getElementById("bmax");
-  var BMAXoutput = document.getElementById("BMAXdemo");
-  BMAXoutput.innerHTML = BMAXslider.value;
-  BMAXslider.oninput = function(){
-    BMAXoutput.innerHTML = this.value;
-    BMAX = parseInt(BMAXoutput.innerHTML,10);
-  }
-  console.log("BMAX=" + BMAX);
-
-  var BMINslider = document.getElementById("bmin");
-  var BMINoutput = document.getElementById("BMINdemo");
-  BMINoutput.innerHTML = BMINslider.value;
-  BMINslider.oninput = function(){
-  BMINoutput.innerHTML = this.value;
-  BMIN = parseInt(BMINoutput.innerHTML,10);
-  }
-  console.log("BMIN=" + BMIN);
-
-  var THRESH_MINslider = document.getElementById("thresh_min");
-  var THRESH_MINoutput = document.getElementById("THRESH_MINdemo");
-  THRESH_MINoutput.innerHTML = THRESH_MINslider.value;
-  THRESH_MINslider.oninput = function(){
-  THRESH_MINoutput.innerHTML = this.value;
-  THRESH_MIN = parseInt(THRESH_MINoutput.innerHTML,10);
-  }
-  console.log("THRESHOLD MIN=" + THRESH_MIN);
-
-  var X_PROBEslider = document.getElementById("x_probe");
-  var X_PROBEoutput = document.getElementById("X_PROBEdemo");
-  X_PROBEoutput.innerHTML = X_PROBEslider.value;
-  X_PROBEslider.oninput = function(){
-  X_PROBEoutput.innerHTML = this.value;
-  X_PROBE = parseInt(X_PROBEoutput.innerHTML,10);
-  }
-  console.log("X_PROBE=" + X_PROBE);
-
-  var Y_PROBEslider = document.getElementById("y_probe");
-  var Y_PROBEoutput = document.getElementById("Y_PROBEdemo");
-  Y_PROBEoutput.innerHTML = Y_PROBEslider.value;
-  Y_PROBEslider.oninput = function(){
-  Y_PROBEoutput.innerHTML = this.value;
-  Y_PROBE = parseInt(Y_PROBEoutput.innerHTML,10);
-  }
-  console.log("Y_PROBE=" + Y_PROBE);
-
-
-  document.getElementById('trackButton').onclick = function(){
-    b_tracker = (true && !b_tracker)
-    console.log("TRACKER = " + b_tracker );
-    var TRACKoutput = document.getElementById("TRACKdemo");
-    TRACKoutput.innerHTML = b_tracker;
-    //var XCMoutput = document.getElementById("XCMdemo");
-    //XCMoutput.innerHTML = x_cm;
-
-  }
-
-  document.getElementById('invertButton').onclick = function(){
-    b_invert = (true && !b_invert)
-    console.log("TRACKER = " + b_invert );
-    var INVERToutput = document.getElementById("INVERTdemo");
-    INVERToutput.innerHTML = b_invert;
-  }
-
-  document.getElementById('contourButton').onclick = function(){
-    b_contour = (true && !b_contour)
-    console.log("TRACKER = " + b_contour );
-    var CONTOURoutput = document.getElementById("CONTOURdemo");
-    CONTOURoutput.innerHTML = b_contour;
-  }
-
-  let tracker = 0;
-
-  var TRACKoutput = document.getElementById("TRACKdemo");
-  TRACKoutput.innerHTML = b_tracker;
-  var XCMoutput = document.getElementById("XCMdemo");
-  var YCMoutput = document.getElementById("YCMdemo");
-
-  XCMoutput.innerHTML = 0;
-  YCMoutput.innerHTML = 0;
-
-  var INVERToutput = document.getElementById("INVERTdemo");
-  INVERToutput.innerHTML = b_invert;
-
-  var CONTOURoutput = document.getElementById("CONTOURdemo");
-  CONTOURoutput.innerHTML = b_contour;
-
-  let M00Array = [0,];
-  let orig = new cv.Mat();
-  let mask = new cv.Mat();
-  let mask1 = new cv.Mat();
-  let mask2 = new cv.Mat();
-  let contours = new cv.MatVector();
-  let hierarchy = new cv.Mat();
-  let rgbaPlanes = new cv.MatVector();
-
-  let color = new cv.Scalar(0,0,0);
-
-  clear_canvas();
-
-
-
-  orig = cv.imread(ShowImage);
-  cv.split(orig,rgbaPlanes);  //SPLIT
-  let BP = rgbaPlanes.get(2);  // SELECTED COLOR PLANE
-  let GP = rgbaPlanes.get(1);
-  let RP = rgbaPlanes.get(0);
-  cv.merge(rgbaPlanes,orig);
-
-  let row = Y_PROBE //180 //275 //225 //150 //130
-  let col = X_PROBE //100 //10 //100 //200 //300
-  drawColRowText(acols,arows);
-
-
-  console.log("ISCONTINUOUS = " + orig.isContinuous());
-
-  R = src.data[row * src.cols * src.channels() + col * src.channels()];
-  G = src.data[row * src.cols * src.channels() + col * src.channels() + 1];
-  B = src.data[row * src.cols * src.channels() + col * src.channels() + 2];
-  A = src.data[row * src.cols * src.channels() + col * src.channels() + 3];
-  console.log("RDATA = " + R);
-  console.log("GDATA = " + G);
-  console.log("BDATA = " + B);
-  console.log("ADATA = " + A);
-
-  drawRGB_PROBE_Text();
-
-
-
-  /*************draw probe point*********************/
-  let point4 = new cv.Point(col,row);
-  cv.circle(src,point4,5,[255,255,255,255],2,cv.LINE_AA,0);
-  /***********end draw probe point*********************/
-
-  let high = new cv.Mat(src.rows,src.cols,src.type(),[RMAX,GMAX,BMAX,255]);
-  let low = new cv.Mat(src.rows,src.cols,src.type(),[RMIN,GMIN,BMIN,0]);
-
-  cv.inRange(src,low,high,mask1);
-  //inRange(source image, lower limit, higher limit, destination image)
-
-  cv.threshold(mask1,mask,THRESH_MIN,255,cv.THRESH_BINARY);
-  //threshold(source image,destination image,threshold,255,threshold method);
-
-  if(b_invert==true){
-     cv.bitwise_not(mask,mask2);
-  }
-/********************start contours******************************************/
-  if(b_tracker == true){
-  try{
-   if(b_invert==false){
-    cv.findContours(mask,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);
-    //findContours(source image, array of contours found, hierarchy of contours
-        // if contours are inside other contours, method of contour data retrieval,
-        //algorithm method)
-   }
-   else{
-    cv.findContours(mask2,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);
-   }
-    console.log("CONTOUR_SIZE = " + contours.size());
-
-    //draw contours
-    if(b_contour==true){
-     for(let i = 0; i < contours.size(); i++){
-        cv.drawContours(src,contours,i,[0,0,0,255],2,cv.LINE_8,hierarchy,100)
-     }
-    }
-
-/* Marks the beginning of finding the moments of the contours found */
-
-    let cnt;
-    let Moments;
-    let M00;
-    let M10;
-
-
-    for(let k = 0; k < contours.size(); k++){
-        cnt = contours.get(k);
-        Moments = cv.moments(cnt,false);
-        M00Array[k] = Moments.m00;
-       // cnt.delete();
-    }
-
-    let max_area_arg = MaxAreaArg(M00Array);
-    console.log("MAXAREAARG = "+max_area_arg);
-
-    //let TestArray = [0,0,0,15,4,15,2];
-    //let TestArray0 = [];
-    //let max_test_area_arg = MaxAreaArg(TestArray0);
-    //console.log("MAXTESTAREAARG = "+max_test_area_arg);
-
-
-
-    let ArgMaxArea = MaxAreaArg(M00Array);
-    if(ArgMaxArea >= 0){
-    cnt = contours.get(MaxAreaArg(M00Array));  //use the contour with biggest MOO
-    //cnt = contours.get(54);
-    Moments = cv.moments(cnt,false);
-    M00 = Moments.m00;
-    M10 = Moments.m10;
-    M01 = Moments.m01;
-    x_cm = M10/M00;    // 75 for circle_9.jpg
-    y_cm = M01/M00;    // 41 for circle_9.jpg
-
-    XCMoutput.innerHTML = Math.round(x_cm);
-    YCMoutput.innerHTML = Math.round(y_cm);
-
-    console.log("M00 = "+M00);
-    console.log("XCM = "+Math.round(x_cm));
-    console.log("YCM = "+Math.round(y_cm));
-
-    //fetch(document.location.origin+'/?xcm='+Math.round(x_cm)+';stop');
-    fetch(document.location.origin+'/?cm='+Math.round(x_cm)+';'+Math.round(y_cm)+';stop');
-
-    console.log("M00ARRAY = " + M00Array);
-
-    //**************min area bounding rect********************
-    //let rotatedRect=cv.minAreaRect(cnt);
-    //let vertices = cv.RotatedRect.points(rotatedRect);
-
-    //for(let j=0;j<4;j++){
-    //    cv.line(src,vertices[j],
-    //        vertices[(j+1)%4],[0,0,255,255],2,cv.LINE_AA,0);
-    //}
-    //***************end min area bounding rect*************************************
-
-
-    //***************bounding rect***************************
-    let rect = cv.boundingRect(cnt);
-    let point1 = new cv.Point(rect.x,rect.y);
-    let point2 = new cv.Point(rect.x+rect.width,rect.y+rect.height);
-
-    cv.rectangle(src,point1,point2,[0,0,255,255],2,cv.LINE_AA,0);
-    //*************end bounding rect***************************
-
-
-    //*************draw center point*********************
-    let point3 = new cv.Point(x_cm,y_cm);
-    cv.circle(src,point3,2,[0,0,255,255],2,cv.LINE_AA,0);
-    //***********end draw center point*********************
-
-    }//end if(ArgMaxArea >= 0)
-    else{
-      if(ArgMaxArea==-1){
-        console.log("ZERO ARRAY LENGTH");
-      }
-      else{              //ArgMaxArea=-2
-        console.log("DUPLICATE MAX ARRAY-ELEMENT");
-      }
-    }
-
-
-
-
-    cnt.delete();
-/******************end contours  note cnt line one up*******************************************/
-   drawXCM_YCM_Text();
-
-  }//end try
-  catch{
-    console.log("ERROR TRACKER NO CONTOUR");
-    clear_canvas();
-    drawErrorTracking_Text();
-  }
-
-  }//end b_tracking if statement
-  else{
-      XCMoutput.innerHTML = 0;
-      YCMoutput.innerHTML = 0;
-  }
-
-  if(b_invert==false){
-     cv.imshow('imageMask', mask);
-  }
-  else{
-     cv.imshow('imageMask', mask2);
-  }
-  //cv.imshow('imageMask', R);
-  cv.imshow('imageCanvas', src);
-
-  src.delete();
-  high.delete();
-  low.delete();
-  orig.delete();
-  mask1.delete();
-  mask2.delete();
-  mask.delete();
-  contours.delete();
-  hierarchy.delete();
-  RP.delete();
-
-
-
-
- /********************END COLOR DETECT****************************/
-
-/***************end opencv******************************/
-
-
- setTimeout(function(){colorDetect.click();},500);
-
-}//end detectimage
-
-
-function MaxAreaArg(arr){
-    if (arr.length == 0) {
-        return -1;
-    }
-
-    var max = arr[0];
-    var maxIndex = 0;
-    var dupIndexCount = 0; //duplicate max elements?
-
-    if(arr[0] >= .90*aarea){
-        max = 0;
-    }
-
-    for (var i = 1; i < arr.length; i++) {
-        if (arr[i] > max && arr[i] < .99*aarea) {
-            maxIndex = i;
-            max = arr[i];
-            dupIndexCount = 0;
+    <div class="modal"></div>
+    <script>
+        var colorDetect = document.getElementById('colorDetect');
+        var ShowImage = document.getElementById('ShowImage');
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+        var imageMask = document.getElementById("imageMask");
+        var imageMaskContext = imageMask.getContext("2d");
+        var imageCanvas = document.getElementById("imageCanvas");
+        var imageContext = imageCanvas.getContext("2d");
+        var txtcanvas = document.getElementById("textCanvas");
+        var ctx = txtcanvas.getContext("2d");
+        var message = document.getElementById('message');
+        var ifr = document.getElementById('ifr');
+        var myTimer;
+        var restartCount=0;
+        const modelPath = 'https://ruisantosdotme.github.io/face-api.js/weights/';
+        let currentStream;
+        let displaySize = { width:400, height: 296 }
+        let faceDetection;
+
+        let b_tracker = false;
+        let x_cm = 0;
+        let y_cm = 0;
+
+        let b_invert = false;
+
+        let b_contour = false;
+
+        var RMAX=50;
+        var RMIN=0;
+        var GMAX=50;
+        var GMIN=0;
+        var BMAX=50;
+        var BMIN=0;
+        var THRESH_MIN=120;
+        var X_PROBE=200;
+        var Y_PROBE=196;
+        var R=0;
+        var G=0;
+        var B=0;
+        var A=0;
+
+        colorDetect.onclick = function (event) {
+        clearInterval(myTimer);
+        myTimer = setInterval(function(){error_handle();},5000);
+        ShowImage.src=location.origin+'/?colorDetect='+Math.random();
         }
-        else if(arr[i]==max && arr[i]!=0){
-            dupIndexCount++;
+
+        var Module = {
+        onRuntimeInitialized(){onOpenCvReady();}
         }
-    }
 
-    if(dupIndexCount==0){
-        return maxIndex;
-    }
-
-    else{
-        return -2;
-    }
-}//end MaxAreaArg
+        function onOpenCvReady(){
+        //alert("onOpenCvReady");
+        console.log("OpenCV IS READY!!!");
+        drawReadyText();
+        document.body.classList.remove("loading");
+        }
 
 
+        function error_handle() {
+        restartCount++;
+        clearInterval(myTimer);
+        if (restartCount<=2) {
+            message.innerHTML = "Get still error. <br>Restart ESP32-CAM "+restartCount+" times.";
+            myTimer = setInterval(function(){colorDetect.click();},10000);
+            ifr.src = document.location.origin+'?restart';
+        }
+        else
+            message.innerHTML = "Get still error. <br>Please close the page and check ESP32-CAM.";
+        }
+        colorDetect.style.display = "block";
+        ShowImage.onload = function (event) {
+        //alert("SHOW IMAGE");
+        console.log("SHOW iMAGE");
+        clearInterval(myTimer);
+        restartCount=0;
+        canvas.setAttribute("width", ShowImage.width);
+        canvas.setAttribute("height", ShowImage.height);
+        canvas.style.display = "block";
+        imageCanvas.setAttribute("width", ShowImage.width);
+        imageCanvas.setAttribute("height", ShowImage.height);
+        imageCanvas.style.display = "block";
 
-function clear_canvas(){
-    ctx.clearRect(0,0,txtcanvas.width,txtcanvas.height);
-    ctx.rect(0,0,txtcanvas.width,txtcanvas.height);
-    ctx.fillStyle="red";
-    ctx.fill();
-}
+        imageMask.setAttribute("width", ShowImage.width);
+        imageMask.setAttribute("height", ShowImage.height);
+        imageMask.style.display = "block";
 
-function drawReadyText(){
-    ctx.fillStyle = 'black';
-    ctx.font = '20px serif';
-    ctx.fillText('OpenCV.JS READY',txtcanvas.width/4,txtcanvas.height/10);
-}
+        context.drawImage(ShowImage,0,0,ShowImage.width,ShowImage.height);
 
-function drawColRowText(x,y){
-    ctx.fillStyle = 'black';
-    ctx.font = '20px serif';
-    ctx.fillText('ImageCols='+x,0,txtcanvas.height/10);
-    ctx.fillText('ImageRows='+y,txtcanvas.width/2,txtcanvas.height/10);
-}
+        DetectImage();
+        }
+        restart.onclick = function (event) {
+        fetch(location.origin+'/?restart=stop');
+        }
+        quality.onclick = function (event) {
+        fetch(document.location.origin+'/?quality='+this.value+';stop');
+        }
+        brightness.onclick = function (event) {
+        fetch(document.location.origin+'/?brightness='+this.value+';stop');
+        }
+        contrast.onclick = function (event) {
+        fetch(document.location.origin+'/?contrast='+this.value+';stop');
+        }
+        async function DetectImage() {
+        //alert("DETECT IMAGE");
+        console.log("DETECT IMAGE");
 
-function drawRGB_PROBE_Text(){
-    ctx.fillStyle = 'black';
-    ctx.font = '20px serif';
-    ctx.fillText('Rp='+R,0,2*txtcanvas.height/10);
-    ctx.fillText('Gp='+G,txtcanvas.width/4,2*txtcanvas.height/10);
-    ctx.fillText('Bp='+B,txtcanvas.width/2,2*txtcanvas.height/10);
-    ctx.fillText('Ap='+A,3*txtcanvas.width/4,2*txtcanvas.height/10);
-}
+        /***************opencv********************************/
+        /* Marks the creation of the src and its characteristics. rows, cols, etc. */
+        let src = cv.imread(ShowImage);
+        arows = src.rows;
+        acols = src.cols;
+        aarea = arows*acols;
+        adepth = src.depth();
+        atype = src.type();
+        achannels = src.channels();
+        console.log("rows = " + arows);
+        console.log("cols = " + acols);
+        console.log("pic area = " + aarea);
+        console.log("depth = " + adepth);
+        console.log("type = " + atype);
+        console.log("channels = " + achannels);
 
-function drawXCM_YCM_Text(){
-    ctx.fillStyle = 'black';
-    ctx.font = '20px serif';
-    ctx.fillText('XCM='+Math.round(x_cm),0,3*txtcanvas.height/10);
-    ctx.fillText('YCM='+Math.round(y_cm),txtcanvas.width/4,3*txtcanvas.height/10);
-}
+        /******************COLOR DETECT******************************/
 
-function drawErrorTracking_Text(){
-    ctx.fillStyle = 'black';
-    ctx.font = '20px serif';
-    ctx.fillText('ERROR TRACKING-NO CONTOUR',0,3*txtcanvas.height/10);
-}
+        //ANN:6
+        var RMAXslider = document.getElementById("rmax");
+        var RMAXoutput = document.getElementById("RMAXdemo");
+        RMAXoutput.innerHTML = RMAXslider.value;
+        RMAXslider.oninput = function(){
+        RMAXoutput.innerHTML = this.value;
+        RMAX = parseInt(RMAXoutput.innerHTML,10);
+        console.log("RMAX=" + RMAX);
+        }
 
-  </script>
+        console.log("RMAX=" + RMAX);
+
+        var RMINslider = document.getElementById("rmin");
+        var RMINoutput = document.getElementById("RMINdemo");
+        RMINoutput.innerHTML = RMINslider.value;
+        RMINslider.oninput = function(){
+            RMINoutput.innerHTML = this.value;
+            RMIN = parseInt(RMINoutput.innerHTML,10);
+            console.log("RMIN=" + RMIN);
+        }
+        console.log("RMIN=" + RMIN);
+
+        var GMAXslider = document.getElementById("gmax");
+        var GMAXoutput = document.getElementById("GMAXdemo");
+        GMAXoutput.innerHTML = GMAXslider.value;
+        GMAXslider.oninput = function(){
+            GMAXoutput.innerHTML = this.value;
+            GMAX = parseInt(GMAXoutput.innerHTML,10);
+        }
+        console.log("GMAX=" + GMAX);
+
+        var GMINslider = document.getElementById("gmin");
+        var GMINoutput = document.getElementById("GMINdemo");
+        GMINoutput.innerHTML = GMINslider.value;
+        GMINslider.oninput = function(){
+            GMINoutput.innerHTML = this.value;
+            GMIN = parseInt(GMINoutput.innerHTML,10);
+        }
+        console.log("GMIN=" + GMIN);
+
+        var BMAXslider = document.getElementById("bmax");
+        var BMAXoutput = document.getElementById("BMAXdemo");
+        BMAXoutput.innerHTML = BMAXslider.value;
+        BMAXslider.oninput = function(){
+            BMAXoutput.innerHTML = this.value;
+            BMAX = parseInt(BMAXoutput.innerHTML,10);
+        }
+        console.log("BMAX=" + BMAX);
+
+        var BMINslider = document.getElementById("bmin");
+        var BMINoutput = document.getElementById("BMINdemo");
+        BMINoutput.innerHTML = BMINslider.value;
+        BMINslider.oninput = function(){
+        BMINoutput.innerHTML = this.value;
+        BMIN = parseInt(BMINoutput.innerHTML,10);
+        }
+        console.log("BMIN=" + BMIN);
+
+        var THRESH_MINslider = document.getElementById("thresh_min");
+        var THRESH_MINoutput = document.getElementById("THRESH_MINdemo");
+        THRESH_MINoutput.innerHTML = THRESH_MINslider.value;
+        THRESH_MINslider.oninput = function(){
+        THRESH_MINoutput.innerHTML = this.value;
+        THRESH_MIN = parseInt(THRESH_MINoutput.innerHTML,10);
+        }
+        console.log("THRESHOLD MIN=" + THRESH_MIN);
+
+        var X_PROBEslider = document.getElementById("x_probe");
+        var X_PROBEoutput = document.getElementById("X_PROBEdemo");
+        X_PROBEoutput.innerHTML = X_PROBEslider.value;
+        X_PROBEslider.oninput = function(){
+        X_PROBEoutput.innerHTML = this.value;
+        X_PROBE = parseInt(X_PROBEoutput.innerHTML,10);
+        }
+        console.log("X_PROBE=" + X_PROBE);
+
+        var Y_PROBEslider = document.getElementById("y_probe");
+        var Y_PROBEoutput = document.getElementById("Y_PROBEdemo");
+        Y_PROBEoutput.innerHTML = Y_PROBEslider.value;
+        Y_PROBEslider.oninput = function(){
+        Y_PROBEoutput.innerHTML = this.value;
+        Y_PROBE = parseInt(Y_PROBEoutput.innerHTML,10);
+        }
+        console.log("Y_PROBE=" + Y_PROBE);
+
+
+        document.getElementById('trackButton').onclick = function(){
+            b_tracker = (true && !b_tracker)
+            console.log("TRACKER = " + b_tracker );
+            var TRACKoutput = document.getElementById("TRACKdemo");
+            TRACKoutput.innerHTML = b_tracker;
+            //var XCMoutput = document.getElementById("XCMdemo");
+            //XCMoutput.innerHTML = x_cm;
+
+        }
+
+        document.getElementById('invertButton').onclick = function(){
+            b_invert = (true && !b_invert)
+            console.log("TRACKER = " + b_invert );
+            var INVERToutput = document.getElementById("INVERTdemo");
+            INVERToutput.innerHTML = b_invert;
+        }
+
+        document.getElementById('contourButton').onclick = function(){
+            b_contour = (true && !b_contour)
+            console.log("TRACKER = " + b_contour );
+            var CONTOURoutput = document.getElementById("CONTOURdemo");
+            CONTOURoutput.innerHTML = b_contour;
+        }
+
+        let tracker = 0;
+
+        var TRACKoutput = document.getElementById("TRACKdemo");
+        TRACKoutput.innerHTML = b_tracker;
+        var XCMoutput = document.getElementById("XCMdemo");
+        var YCMoutput = document.getElementById("YCMdemo");
+
+        XCMoutput.innerHTML = 0;
+        YCMoutput.innerHTML = 0;
+
+        var INVERToutput = document.getElementById("INVERTdemo");
+        INVERToutput.innerHTML = b_invert;
+
+        var CONTOURoutput = document.getElementById("CONTOURdemo");
+        CONTOURoutput.innerHTML = b_contour;
+
+        let M00Array = [0,];
+        let orig = new cv.Mat();
+        let mask = new cv.Mat();
+        let mask1 = new cv.Mat();
+        let mask2 = new cv.Mat();
+        let contours = new cv.MatVector();
+        let hierarchy = new cv.Mat();
+        let rgbaPlanes = new cv.MatVector();
+
+        let color = new cv.Scalar(0,0,0);
+
+        clear_canvas();
+
+        orig = cv.imread(ShowImage);
+        cv.split(orig,rgbaPlanes);
+        let BP = rgbaPlanes.get(2);
+        let GP = rgbaPlanes.get(1);
+        let RP = rgbaPlanes.get(0);
+        cv.merge(rgbaPlanes,orig);
+
+        let row = Y_PROBE //180 //275 //225 //150 //130
+        let col = X_PROBE //100 //10 //100 //200 //300
+        drawColRowText(acols,arows);
+
+        console.log("ISCONTINUOUS = " + orig.isContinuous());
+
+        R = src.data[row * src.cols * src.channels() + col * src.channels()];
+        G = src.data[row * src.cols * src.channels() + col * src.channels() + 1];
+        B = src.data[row * src.cols * src.channels() + col * src.channels() + 2];
+        A = src.data[row * src.cols * src.channels() + col * src.channels() + 3];
+        console.log("RDATA = " + R);
+        console.log("GDATA = " + G);
+        console.log("BDATA = " + B);
+        console.log("ADATA = " + A);
+
+        drawRGB_PROBE_Text();
+
+        /*************draw probe point*********************/
+        let point4 = new cv.Point(col,row);
+        cv.circle(src,point4,5,[255,255,255,255],2,cv.LINE_AA,0);
+        /***********end draw probe point*********************/
+
+        let high = new cv.Mat(src.rows,src.cols,src.type(),[RMAX,GMAX,BMAX,255]);
+        let low = new cv.Mat(src.rows,src.cols,src.type(),[RMIN,GMIN,BMIN,0]);
+
+        cv.inRange(src,low,high,mask1); //inRange(source image, lower limit, higher limit, destination image)
+        cv.threshold(mask1,mask,THRESH_MIN,255,cv.THRESH_BINARY); //threshold(source image,destination image,threshold,255,threshold method);
+
+        if(b_invert==true){cv.bitwise_not(mask,mask2);}
+
+        /********************start contours******************************************/
+        if(b_tracker == true){
+            try{
+                if(b_invert==false){cv.findContours(mask,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);}
+                else{cv.findContours(mask2,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);}
+            console.log("CONTOUR_SIZE = " + contours.size());
+
+            //draw contours
+            if(b_contour==true){
+                for(let i = 0; i < contours.size(); i++){
+                    cv.drawContours(src,contours,i,[0,0,0,255],2,cv.LINE_8,hierarchy,100)
+                }
+            }
+
+            /* Marks the beginning of finding the moments of the contours found */
+
+            let cnt;
+            let Moments;
+            let M00;
+            let M10;
+
+            for(let k = 0; k < contours.size(); k++){
+                cnt = contours.get(k);
+                Moments = cv.moments(cnt,false);
+                M00Array[k] = Moments.m00;
+            // cnt.delete();
+            }
+
+            let max_area_arg = MaxAreaArg(M00Array);
+            console.log("MAXAREAARG = "+max_area_arg);
+
+            let ArgMaxArea = MaxAreaArg(M00Array);
+            if(ArgMaxArea >= 0){
+            cnt = contours.get(MaxAreaArg(M00Array));
+            //cnt = contours.get(54);
+            Moments = cv.moments(cnt,false);
+            M00 = Moments.m00;
+            M10 = Moments.m10;
+            M01 = Moments.m01;
+            x_cm = M10/M00;    // 75 for circle_9.jpg
+            y_cm = M01/M00;    // 41 for circle_9.jpg
+
+            XCMoutput.innerHTML = Math.round(x_cm);
+            YCMoutput.innerHTML = Math.round(y_cm);
+
+            console.log("M00 = "+M00);
+            console.log("XCM = "+Math.round(x_cm));
+            console.log("YCM = "+Math.round(y_cm));
+
+            //fetch(document.location.origin+'/?xcm='+Math.round(x_cm)+';stop');
+            fetch(document.location.origin+'/?cm='+Math.round(x_cm)+';'+Math.round(y_cm)+';stop');
+
+            console.log("M00ARRAY = " + M00Array);
+
+            //**************min area bounding rect********************
+            //let rotatedRect=cv.minAreaRect(cnt);
+            //let vertices = cv.RotatedRect.points(rotatedRect);
+
+            //for(let j=0;j<4;j++){
+            //    cv.line(src,vertices[j],
+            //        vertices[(j+1)%4],[0,0,255,255],2,cv.LINE_AA,0);
+            //}
+            //***************end min area bounding rect*************************************
+
+            //***************bounding rect***************************
+            let rect = cv.boundingRect(cnt);
+            let point1 = new cv.Point(rect.x,rect.y);
+            let point2 = new cv.Point(rect.x+rect.width,rect.y+rect.height);
+
+            cv.rectangle(src,point1,point2,[0,0,255,255],2,cv.LINE_AA,0);
+            //*************end bounding rect***************************
+
+            //*************draw center point*********************
+            let point3 = new cv.Point(x_cm,y_cm);
+            cv.circle(src,point3,2,[0,0,255,255],2,cv.LINE_AA,0);
+            //***********end draw center point*********************
+
+            }//end if(ArgMaxArea >= 0)
+            else{
+            if(ArgMaxArea==-1){
+                console.log("ZERO ARRAY LENGTH");
+            }
+            else{              //ArgMaxArea=-2
+                console.log("DUPLICATE MAX ARRAY-ELEMENT");
+            }
+            }
+
+            cnt.delete();
+            /******************end contours  note cnt line one up*******************************************/
+            drawXCM_YCM_Text();
+
+            }//end try
+
+        catch{
+            console.log("ERROR TRACKER NO CONTOUR");
+            clear_canvas();
+            drawErrorTracking_Text();
+        }
+
+        }//end b_tracking if statement
+        else{
+            XCMoutput.innerHTML = 0;
+            YCMoutput.innerHTML = 0;
+        }
+
+        if(b_invert==false){
+            cv.imshow('imageMask', mask);
+        }
+        else{
+            cv.imshow('imageMask', mask2);
+        }
+        cv.imshow('imageCanvas', src);
+
+        src.delete();
+        high.delete();
+        low.delete();
+        orig.delete();
+        mask1.delete();
+        mask2.delete();
+        mask.delete();
+        contours.delete();
+        hierarchy.delete();
+        RP.delete();
+
+        /********************END COLOR DETECT****************************/
+
+        /***************end opencv******************************/
+
+        setTimeout(function(){colorDetect.click();},500);
+
+        }//end detectimage
+
+        function MaxAreaArg(arr){
+            if (arr.length == 0) {
+                return -1;
+            }
+
+            var max = arr[0];
+            var maxIndex = 0;
+            var dupIndexCount = 0; //duplicate max elements?
+
+            if(arr[0] >= .90*aarea){
+                max = 0;
+            }
+
+            for (var i = 1; i < arr.length; i++) {
+                if (arr[i] > max && arr[i] < .99*aarea) {
+                    maxIndex = i;
+                    max = arr[i];
+                    dupIndexCount = 0;
+                }
+                else if(arr[i]==max && arr[i]!=0){
+                    dupIndexCount++;
+                }
+            }
+
+            if(dupIndexCount==0){
+                return maxIndex;
+            }
+
+            else{
+                return -2;
+            }
+        }//end MaxAreaArg
+
+        function clear_canvas(){
+            ctx.clearRect(0,0,txtcanvas.width,txtcanvas.height);
+            ctx.rect(0,0,txtcanvas.width,txtcanvas.height);
+            ctx.fillStyle="red";
+            ctx.fill();
+        }
+
+        function drawReadyText(){
+            ctx.fillStyle = 'black';
+            ctx.font = '20px serif';
+            ctx.fillText('OpenCV.JS READY',txtcanvas.width/4,txtcanvas.height/10);
+        }
+
+        function drawColRowText(x,y){
+            ctx.fillStyle = 'black';
+            ctx.font = '20px serif';
+            ctx.fillText('ImageCols='+x,0,txtcanvas.height/10);
+            ctx.fillText('ImageRows='+y,txtcanvas.width/2,txtcanvas.height/10);
+        }
+
+        function drawRGB_PROBE_Text(){
+            ctx.fillStyle = 'black';
+            ctx.font = '20px serif';
+            ctx.fillText('Rp='+R,0,2*txtcanvas.height/10);
+            ctx.fillText('Gp='+G,txtcanvas.width/4,2*txtcanvas.height/10);
+            ctx.fillText('Bp='+B,txtcanvas.width/2,2*txtcanvas.height/10);
+            ctx.fillText('Ap='+A,3*txtcanvas.width/4,2*txtcanvas.height/10);
+        }
+
+        function drawXCM_YCM_Text(){
+            ctx.fillStyle = 'black';
+            ctx.font = '20px serif';
+            ctx.fillText('XCM='+Math.round(x_cm),0,3*txtcanvas.height/10);
+            ctx.fillText('YCM='+Math.round(y_cm),txtcanvas.width/4,3*txtcanvas.height/10);
+        }
+
+        function drawErrorTracking_Text(){
+            ctx.fillStyle = 'black';
+            ctx.font = '20px serif';
+            ctx.fillText('ERROR TRACKING-NO CONTOUR',0,3*txtcanvas.height/10);
+        }
+    </script>
 </body>
 </html>
 )rawliteral";
