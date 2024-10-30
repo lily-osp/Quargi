@@ -1,3 +1,4 @@
+/* Importing libraries */
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include "esp_camera.h"
@@ -5,22 +6,18 @@
 #include "soc/rtc_cntl_reg.h"
 #include "index_tracking.h"
 
-const char* ssid = "hash"; /* Replace your SSID */
-const char* password = "12345678"; /* Replace your Password */
-
-int panServo = 2;
-int tiltServo = 12;
-int panChannel = 2;
-int tiltChannel = 4;
-int x_widthMid = 200;
-int y_heightMid = 148;
-
-int pan_servo_mid = 3250  + ((6500 - 3250) / 2);
-int tilt_servo_mid = 3250  + ((6500 - 3250) / 2);
+const char* ssid = "ssid"; /* Replace your SSID */
+const char* password = "password"; /* Replace your Password */
 
 String Feedback = "";
 String Command = "", cmd = "", P1 = "", P2 = "", P3 = "", P4 = "", P5 = "", P6 = "", P7 = "", P8 = "", P9 = "";
 byte ReceiveState = 0, cmdState = 1, strState = 1, questionstate = 0, equalstate = 0, semicolonstate = 0;
+
+// initial coordinate val
+int x_coordinate = 0;
+int y_coordinate = 0;
+int x_widthMid = 320;
+int y_heightMid = 240;
 
 /* AI-Thinker */
 #define PWDN_GPIO_NUM     32
@@ -44,8 +41,8 @@ WiFiServer server(80);
 
 void ExecuteCommand() {
   if (cmd != "colorDetect") {
-    //Serial.println("cmd= "+cmd+" ,P1= "+P1+" ,P2= "+P2+" ,P3= "+P3+" ,P4= "+P4+" ,P5= "+P5+" ,P6= "+P6+" ,P7= "+P7+" ,P8= "+P8+" ,P9= "+P9);
-    //Serial.println("");
+    // Optional: Debugging output for other commands
+    // Serial.println("cmd= "+cmd+" ,P1= "+P1+" ,P2= "+P2+" ,P3= "+P3+" ,P4= "+P4+" ,P5= "+P5+" ,P6= "+P6+" ,P7= "+P7+" ,P8= "+P8+" ,P9= "+P9);
   }
 
   if (cmd == "resetwifi") {
@@ -66,13 +63,46 @@ void ExecuteCommand() {
     ESP.restart();
   }
   else if (cmd == "cm") {
-    int XcmVal = P1.toInt();
-    int YcmVal = P2.toInt();
-    Serial.println("cmd= " + cmd + " ,VALXCM= " + XcmVal);
-    Serial.println("cmd= " + cmd + " ,VALYCM= " + YcmVal);
-    pan_tilt_Servo(XcmVal, YcmVal); /* Method for pan and tilt servo angle position adjusting
-    ( Passing x and y axis co-ordination value of screen ) */
+    x_coordinate = P1.toInt(); // P1 is the X coordinate
+    y_coordinate = P2.toInt(); // P2 is the Y coordinate
 
+    // Calculate offsets from the center of the screen
+    int x_offset = x_coordinate - x_widthMid;
+    int y_offset = y_coordinate - y_heightMid;
+
+    // Send coordinate data to the serial monitor
+    Serial.println("Received Coordinates:");
+    Serial.print("X Position: "); 
+    Serial.print(x_coordinate);
+    Serial.print(" (Offset from center: "); 
+    Serial.print(x_offset); 
+    Serial.println(")");
+
+    Serial.print("Y Position: "); 
+    Serial.print(y_coordinate);
+    Serial.print(" (Offset from center: "); 
+    Serial.print(y_offset); 
+    Serial.println(")");
+    
+    // Check and print additional conditions or actions based on the coordinates
+    if (x_offset > 0) {
+      Serial.println("Object is to the right of the center.");
+    } else if (x_offset < 0) {
+      Serial.println("Object is to the left of the center.");
+    } else {
+      Serial.println("Object is centered horizontally.");
+    }
+
+    if (y_offset > 0) {
+      Serial.println("Object is below the center.");
+    } else if (y_offset < 0) {
+      Serial.println("Object is above the center.");
+    } else {
+      Serial.println("Object is centered vertically.");
+    }
+
+    // Provide feedback
+    Feedback = "Position Data - X: " + String(x_coordinate) + ", Y: " + String(y_coordinate);
   }
   else if (cmd == "quality") {
     sensor_t * s = esp_camera_sensor_get();
@@ -92,6 +122,7 @@ void ExecuteCommand() {
   else {
     Feedback = "Command is not defined.";
   }
+
   if (Feedback == "") {
     Feedback = Command;
   }
@@ -100,17 +131,10 @@ void ExecuteCommand() {
 void setup() {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
 
-  ledcSetup(panChannel, 50, 16); /* (channel, freq, resolution) */ /* 50 hz PWM, 16-bit resolution and range from 3250 to 6500 */
-  ledcAttachPin(panServo, panChannel); /* (pin, channel) */
-  ledcSetup(tiltChannel, 50, 16); /* (channel, freq, resolution) */ /* 50 hz PWM, 16-bit resolution and range from 3250 to 6500 */
-  ledcAttachPin(tiltServo, tiltChannel); /* (pin, channel) */
-
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
 
-  ledcWrite(panChannel, 3250 + ((6500 - 3250) / 2)); /* Setting pan servo to mid point */
-  ledcWrite(tiltChannel, 3250 + ((6500 - 3250) / 2)); /* Setting tilt servo to mid point */
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -173,11 +197,9 @@ void setup() {
     Serial.println(WiFi.localIP());
   }
   server.begin();
-
 }
 
 void loop() {
-
   Feedback = ""; Command = ""; cmd = ""; P1 = ""; P2 = ""; P3 = ""; P4 = ""; P5 = ""; P6 = ""; P7 = ""; P8 = ""; P9 = "";
   ReceiveState = 0, cmdState = 1, strState = 1, questionstate = 0, equalstate = 0, semicolonstate = 0;
 
@@ -213,6 +235,7 @@ void loop() {
               client.println("Content-Length: " + String(fb->len));
               client.println("Connection: close");
               client.println();
+
 
               uint8_t *fbBuf = fb->buf;
               size_t fbLen = fb->len;
@@ -289,51 +312,12 @@ void getCommand(char c) {
     if ((cmdState == 0) && (strState == 3) && (c != ';')) P3 = P3 + String(c);
     if ((cmdState == 0) && (strState == 4) && (c != ';')) P4 = P4 + String(c);
     if ((cmdState == 0) && (strState == 5) && (c != ';')) P5 = P5 + String(c);
-    if ((cmdState == 0) && (strState == 6) && (c != ';')) P6 = P6 + String(c);
+    if ((cmdState == 0) && (strState == 6) && (c != ';')) P         6 = P6 + String(c);
     if ((cmdState == 0) && (strState == 7) && (c != ';')) P7 = P7 + String(c);
     if ((cmdState == 0) && (strState == 8) && (c != ';')) P8 = P8 + String(c);
     if ((cmdState == 0) && (strState >= 9) && ((c != ';') || (semicolonstate == 1))) P9 = P9 + String(c);
-    if (c == '?') questionstate = 1;
+    if (c == '?') questionstate = 1;      
     if (c == '=') equalstate = 1;
     if ((strState >= 9) && (c == ';')) semicolonstate = 1;
   }
-}
-
-
-void pan_tilt_Servo(int xVal, int yVal) {
-
-  /* Adjusting pan servo angle */
-  if (xVal < (x_widthMid - 25)) {
-    pan_servo_mid += 200; /* Increasing the pan servo channel PWM */
-    if (pan_servo_mid > 6500)
-      pan_servo_mid = 6500;
-
-    ledcWrite(panChannel, pan_servo_mid);
-  }
-  if (xVal > (x_widthMid + 25)) {
-    pan_servo_mid -= 200; /* Decreasing the pan servo channel PWM */
-
-    if (pan_servo_mid < 3250)
-      pan_servo_mid = 3250;
-
-    ledcWrite(panChannel, pan_servo_mid);
-  }
-
-  /* Adjusting tilt servo angle */
-  if (yVal < (y_heightMid + 25)) {
-    tilt_servo_mid += 200; /* Increasing the tilt servo channel PWM */
-    if (tilt_servo_mid > 6500)
-      tilt_servo_mid = 6500;
-
-    ledcWrite(tiltChannel, tilt_servo_mid);
-  }
-  if (yVal > (y_heightMid - 25)) {
-    tilt_servo_mid -= 200;/* Decreasing the tilt servo channel PWM */
-
-    if (tilt_servo_mid < 3250)
-      tilt_servo_mid = 3250;
-
-    ledcWrite(tiltChannel, tilt_servo_mid);
-  }
-
 }
