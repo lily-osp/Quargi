@@ -3,8 +3,8 @@
 #include "ui_index.h"  // Include the UI file
 
 // WiFi credentials
-const char* ssid = "XXXXX";
-const char* password = "drowssap";
+const char* ssid = "SSID";
+const char* password = "PASSWORD";
 
 WebServer server(80);
 
