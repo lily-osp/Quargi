@@ -300,6 +300,8 @@ const char* html = R"html(
         });
 
         function sendCommand(cmd) {
+            // Encode the command, but preserve the + symbol
+            cmd = cmd.replace("+", "%2B");
             fetch('/command?cmd=' + cmd)
                 .then(response => response.text())
                 .then(data => {

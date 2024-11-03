@@ -4,7 +4,7 @@
 
 // WiFi credentials
 const char* ssid = "SSID";
-const char* password = "PASSWORD";
+const char* password = "password";
 
 WebServer server(80);
 

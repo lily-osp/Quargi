@@ -6,13 +6,37 @@ const int SHOULDER_PIN = 7;
 const int ELBOW_PIN = 8;
 const int GRIPPER_PIN = 11;
 
-// Create robot arm instance
-RobotArm arm(BASE_PIN, SHOULDER_PIN, ELBOW_PIN, GRIPPER_PIN);
+// Enable or disable the help and error message feature
+bool enableHelpAndErrorMessages = true;
+bool enableSerialOutput = true; // Set this to false to disable all serial printing
+
+// Create robot arm instance with serial control
+class CustomRobotArm : public RobotArm {
+public:
+  using RobotArm::RobotArm;
+
+  // Override any method in RobotArm that uses Serial.print
+  void printCurrentAngles() {
+    if (enableSerialOutput) {
+      RobotArm::printCurrentAngles();
+    }
+  }
+
+  void printSavedPositions() {
+    if (enableSerialOutput) {
+      RobotArm::printSavedPositions();
+    }
+  }
+};
+
+CustomRobotArm arm(BASE_PIN, SHOULDER_PIN, ELBOW_PIN, GRIPPER_PIN);
 
 void setup() {
   Serial.begin(115200);
   arm.begin();
-  printHelp();
+  if (enableHelpAndErrorMessages && enableSerialOutput) {
+    printHelp();
+  }
 }
 
 void loop() {
@@ -56,10 +80,15 @@ void processCommand(String command) {
         break;
 
       case 'p':
-        if (action == 'h') {
+        if (action == 'h' && enableHelpAndErrorMessages && enableSerialOutput) {
           printHelp();
         } else if (action == 's') {
           arm.printSavedPositions();
+        }
+        break;
+      default:
+        if (enableHelpAndErrorMessages && enableSerialOutput) {
+          Serial.println("Invalid command. Type 'p h' for help.");
         }
         break;
     }
@@ -68,7 +97,9 @@ void processCommand(String command) {
       arm.startRecording();
     }
 
-    arm.printCurrentAngles();
+    if (enableSerialOutput) {
+      arm.printCurrentAngles();
+    }
   }
 }
 
@@ -108,33 +139,36 @@ void processMovementCommand(char movement) {
       arm.performReach();
       break;
     default:
-      Serial.println("Invalid movement command.");
+      if (enableHelpAndErrorMessages && enableSerialOutput) {
+        Serial.println("Invalid movement command.");
+      }
       break;
   }
 }
 
 void printHelp() {
-  Serial.println("\nRobot Arm Control Commands:");
-  Serial.println("1. Joint Control:");
-  Serial.println("   b/s/e [+/-] - Move base/shoulder/elbow");
-  Serial.println("   g [o/c] - Gripper open/close");
-  Serial.println("2. Movements:");
-  Serial.println("   m h - Home position");
-  Serial.println("   m s - Scan");
-  Serial.println("   m p - Pick");
-  Serial.println("   m d - Drop");
-  Serial.println("   m w - Wave");
-  Serial.println("   m b - Bow");
-  Serial.println("   m r - Reach");
-  Serial.println("3. Position Memory:");
-  Serial.println("   m pos ## - Save current position (1-3)");
-  Serial.println("   m save ## - Move to saved position (1-3)");
-  Serial.println("4. Command Recording:");
-  Serial.println("   stream - Start recording commands");
-  Serial.println("   done - Stop recording");
-  Serial.println("   play - Execute recorded commands");
-  Serial.println("   clear - Clear recorded commands");
-  Serial.println("5. Information:");
-  Serial.println("   p h - Print this help");
-  Serial.println("   p s - Print saved positions");
+  if (enableSerialOutput) {
+    Serial.println("\nRobot Arm Control Commands:");
+    Serial.println("1. Joint Control:");
+    Serial.println("   b/s/e [+/-] - Move base/shoulder/elbow");
+    Serial.println("   g [o/c] - Gripper open/close");
+    Serial.println("2. Movements:");
+    Serial.println("   m h - Move to home");
+    Serial.println("   m s - Perform scan");
+    Serial.println("   m p - Perform pick");
+    Serial.println("   m d - Perform drop");
+    Serial.println("   m w - Perform wave");
+    Serial.println("   m b - Perform bow");
+    Serial.println("   m r - Perform reach");
+    Serial.println("3. Position Management:");
+    Serial.println("   m pos [num] - Save current position");
+    Serial.println("   m save [num] - Execute saved position");
+    Serial.println("4. Misc:");
+    Serial.println("   p h - Print help");
+    Serial.println("   p s - Print saved positions");
+    Serial.println("   stream - Start recording commands");
+    Serial.println("   done - Stop recording");
+    Serial.println("   play - Play recorded commands");
+    Serial.println("   clear - Clear recorded commands");
+  }
 }

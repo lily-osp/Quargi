@@ -44,12 +44,10 @@ void RobotArm::moveGripper(char action) {
   if (action == 'o') {
     gripperAngle = GRIPPER_OPEN;
     gripperServo.write(gripperAngle);
-    Serial.println("Gripper opened");
   }
   else if (action == 'c') {
     gripperAngle = GRIPPER_CLOSE;
     gripperServo.write(gripperAngle);
-    Serial.println("Gripper closed");
   }
 }
 
@@ -82,7 +80,6 @@ void RobotArm::moveToHome() {
   moveToAngle(shoulderServo, &shoulderAngle, HOME_SHOULDER);
   moveToAngle(elbowServo, &elbowAngle, HOME_ELBOW);
   moveToAngle(gripperServo, &gripperAngle, HOME_GRIPPER);
-  Serial.println("Moved to home position");
 }
 
 // Predefined movements
