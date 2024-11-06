@@ -33,7 +33,6 @@ void setup() {
     sensor.begin();
     oa.begin();
     arm.begin();
-    printCommands();
 }
 
 void loop() {
@@ -158,9 +157,7 @@ void executeCommand(String command) {
                 break;
 
             case 'p':
-                if (action == 'h') {
-                    printCommands();
-                } else if (action == 's') {
+                if (action == 's') {
                     arm.printSavedPositions();
                 }
                 break;
@@ -173,9 +170,6 @@ void executeCommand(String command) {
         if (type == 'b' || type == 's' || type == 'e' || type == 'g') {
             arm.printCurrentAngles();
         }
-    }
-    else if (command == "help") {
-        printCommands();
     }
     else {
         Serial.println("Invalid command. Type 'help' for available commands.");
@@ -195,51 +189,4 @@ void processArmMovement(char movement) {
             Serial.println("Invalid arm movement command.");
             break;
     }
-}
-
-void printCommands() {
-    Serial.println("\n=== Unified Robot Control System ===");
-    Serial.println("\nMobile Base Commands:");
-    Serial.println("Movement:");
-    Serial.println("  mv  - Move forward");
-    Serial.println("  bk  - Move backward");
-    Serial.println("  lt  - Turn left");
-    Serial.println("  rt  - Turn right");
-    Serial.println("  rl  - Rotate left");
-    Serial.println("  rr  - Rotate right");
-    Serial.println("  st  - Stop motors");
-    Serial.println("Speed control:");
-    Serial.println("  spd <0-255> - Set motor speed");
-    Serial.println("Obstacle avoidance:");
-    Serial.println("  oa on   - Enable obstacle avoidance");
-    Serial.println("  oa off  - Disable obstacle avoidance");
-    Serial.println("  oa nav  - Start autonomous navigation");
-    Serial.println("  dist    - Read distance sensor");
-
-    Serial.println("\nRobot Arm Commands:");
-    Serial.println("Joint Control:");
-    Serial.println("  b/s/e [+/-] - Move base/shoulder/elbow");
-    Serial.println("  g [o/c]     - Gripper open/close");
-    Serial.println("Movements:");
-    Serial.println("  m h - Home position");
-    Serial.println("  m s - Scan");
-    Serial.println("  m p - Pick");
-    Serial.println("  m d - Drop");
-    Serial.println("  m w - Wave");
-    Serial.println("  m b - Bow");
-    Serial.println("  m r - Reach");
-    Serial.println("Position Memory:");
-    Serial.println("  m pos ## - Save current position (1-3)");
-    Serial.println("  m save ## - Move to saved position (1-3)");
-    Serial.println("Command Recording:");
-    Serial.println("  stream - Start recording commands");
-    Serial.println("  done   - Stop recording");
-    Serial.println("  play   - Execute recorded commands");
-    Serial.println("  clear  - Clear recorded commands");
-    Serial.println("Information:");
-    Serial.println("  p h - Print this help");
-    Serial.println("  p s - Print saved positions");
-
-    Serial.println("\nGeneral:");
-    Serial.println("  help - Show this help message");
 }
