@@ -28,11 +28,11 @@ void setup() {
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
         delay(1000);
-        Serial.println("Connecting to WiFi...");
+        // Serial.println("Connecting to WiFi...");
     }
     
-    Serial.println("Connected to WiFi");
-    Serial.print("IP address: ");
+    // Serial.println("Connected to WiFi");
+    // Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
     
     // Setup server routes
@@ -40,7 +40,7 @@ void setup() {
     server.on("/command", handleCommand);
     
     server.begin();
-    Serial.println("HTTP server started");
+    // Serial.println("HTTP server started");
 }
 
 void loop() {
