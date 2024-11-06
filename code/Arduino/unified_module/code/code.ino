@@ -13,13 +13,11 @@ const uint8_t MOTOR2_ENB = 10;
 const uint8_t TRIG_PIN = 12;
 const uint8_t ECHO_PIN = 2;
 
-// Pin definitions for robot arm
 const int BASE_PIN = 13;
 const int SHOULDER_PIN = 7;
 const int ELBOW_PIN = 8;
 const int GRIPPER_PIN = 11;
 
-// Create objects
 MotorController motors(MOTOR1_IN1, MOTOR1_IN2, MOTOR2_IN1, MOTOR2_IN2, MOTOR1_ENA, MOTOR2_ENB);
 UltrasonicSensor sensor(TRIG_PIN, ECHO_PIN);
 ObstacleAvoidance oa(&motors, &sensor);
@@ -33,15 +31,14 @@ void setup() {
     sensor.begin();
     oa.begin();
     arm.begin();
+    Serial.println(" ");
 }
 
 void loop() {
-    // Check obstacle avoidance if enabled
     if (oa.isActive()) {
         oa.check();
     }
 
-    // Read serial commands
     if (Serial.available() > 0) {
         command = Serial.readStringUntil('\n');
         command.trim();
@@ -55,6 +52,7 @@ void loop() {
     }
 }
 
+// Functions for different command modes
 void processRecordingMode(String command) {
     if (command == "done") {
         arm.stopRecording();
@@ -68,111 +66,97 @@ void processRecordingMode(String command) {
 }
 
 void executeCommand(String command) {
-    // Base movement commands
-    if (command == "mv") {
-        motors.moveForward();
-        Serial.println("Moving forward");
-    }
-    else if (command == "bk") {
-        motors.moveBackward();
-        Serial.println("Moving backward");
-    }
-    else if (command == "lt") {
-        motors.turnLeft();
-        Serial.println("Turning left");
-    }
-    else if (command == "rt") {
-        motors.turnRight();
-        Serial.println("Turning right");
-    }
-    else if (command == "rl") {
-        motors.rotateLeft();
-        Serial.println("Rotating left");
-    }
-    else if (command == "rr") {
-        motors.rotateRight();
-        Serial.println("Rotating right");
-    }
-    else if (command == "st") {
-        motors.stop();
-        Serial.println("Stopping");
-    }
-    // Base speed commands
+    // Motor control commands
+    if (command == "mv") { motors.moveForward(); }
+    else if (command == "bk") { motors.moveBackward(); }
+    else if (command == "lt") { motors.turnLeft(); }
+    else if (command == "rt") { motors.turnRight(); }
+    else if (command == "rl") { motors.rotateLeft(); }
+    else if (command == "rr") { motors.rotateRight(); }
+    else if (command == "st") { motors.stop(); }
+    
+    // Speed command with argument
     else if (command.startsWith("spd ")) {
         int speed = command.substring(4).toInt();
         motors.setSpeed(speed);
         Serial.println("Speed set to: " + String(speed));
     }
-    // Obstacle avoidance commands
-    else if (command == "oa on") {
-        oa.enable();
-        Serial.println("Obstacle avoidance enabled");
-    }
-    else if (command == "oa off") {
-        oa.disable();
-        Serial.println("Obstacle avoidance disabled");
-    }
+
+    // Obstacle avoidance and navigation
+    else if (command == "oa on") { oa.enable(); }
+    else if (command == "oa off") { oa.disable(); }
     else if (command == "oa nav") {
-        oa.enable();
-        Serial.println("Starting autonomous navigation");
-        while (oa.isActive()) {
-            oa.navigate();
-            if (Serial.available() > 0) {
-                String stopCmd = Serial.readStringUntil('\n');
-                stopCmd.trim();
-                if (stopCmd == "st") break;
-            }
-        }
-        motors.stop();
-        Serial.println("Navigation stopped");
+        startNavigationMode();
     }
+
+    // Distance measurement
     else if (command == "dist") {
         float distance = sensor.getFilteredDistance(5);
         Serial.println("Distance: " + String(distance) + " cm");
     }
-    // Arm commands
+
+    // Arm joint control
     else if (command.length() >= 3) {
-        char type = command.charAt(0);
-        char action = command.charAt(2);
+        handleArmCommands(command);
+    } 
+    else {
+        Serial.println("Invalid command.");
+    }
+}
 
-        switch (type) {
-            case 'b': case 's': case 'e':
-                arm.moveJoint(type, action);
-                break;
+// Function to handle arm movement and joint commands
+void handleArmCommands(String command) {
+    char type = command.charAt(0);
+    char action = command.charAt(2);
 
-            case 'g':
-                arm.moveGripper(action);
-                break;
+    switch (type) {
+        case 'b': case 's': case 'e':
+            arm.moveJoint(type, action);
+            break;
+        case 'g':
+            arm.moveGripper(action);
+            break;
+        case 'm':
+            processMovementOrSave(command, action);
+            break;
+        case 'p':
+            if (action == 's') { arm.printSavedPositions(); }
+            break;
+    }
 
-            case 'm':
-                if (command.startsWith("m pos")) {
-                    int posNum = command.substring(6).toInt();
-                    arm.saveCurrentPosition(posNum);
-                } else if (command.startsWith("m save")) {
-                    int posNum = command.substring(6).toInt();
-                    arm.executeSavedPosition(posNum);
-                } else {
-                    processArmMovement(action);
-                }
-                break;
+    if (command == "stream") {
+        arm.startRecording();
+    }
 
-            case 'p':
-                if (action == 's') {
-                    arm.printSavedPositions();
-                }
-                break;
-        }
+    if (type == 'b' || type == 's' || type == 'e' || type == 'g') {
+        arm.printCurrentAngles();
+    }
+}
 
-        if (command == "stream") {
-            arm.startRecording();
-        }
-
-        if (type == 'b' || type == 's' || type == 'e' || type == 'g') {
-            arm.printCurrentAngles();
+void startNavigationMode() {
+    oa.enable();
+    Serial.println("Starting autonomous navigation");
+    while (oa.isActive()) {
+        oa.navigate();
+        if (Serial.available() > 0) {
+            String stopCmd = Serial.readStringUntil('\n');
+            stopCmd.trim();
+            if (stopCmd == "st") break;
         }
     }
-    else {
-        Serial.println("Invalid command. Type 'help' for available commands.");
+    motors.stop();
+    Serial.println("Navigation stopped");
+}
+
+void processMovementOrSave(String command, char action) {
+    if (command.startsWith("m pos")) {
+        int posNum = command.substring(6).toInt();
+        arm.saveCurrentPosition(posNum);
+    } else if (command.startsWith("m save")) {
+        int posNum = command.substring(6).toInt();
+        arm.executeSavedPosition(posNum);
+    } else {
+        processArmMovement(action);
     }
 }
 
