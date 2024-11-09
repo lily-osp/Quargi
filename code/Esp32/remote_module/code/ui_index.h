@@ -12,27 +12,85 @@ const char* html = R"html(
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-        body {
-            background-color: #212121;
-            color: #e0f7fa;
-            font-family: 'Press Start 2P', cursive;
-            padding: 20px;
+        :root {
+            --primary-dark: #2D1B36;
+            --secondary-dark: #1A0F20;
+            --accent-purple: #6B2F8A;
+            --highlight-purple: #8A3DAD;
+            --text-light: #E0D6E4;
+            --text-dark: #1A0F20;
+            --detect-button: #9C27B0;
+            --detect-button-hover: #BA68C8;
+            --reset-button: #673AB7;
+            --reset-button-hover: #7E57C2;
         }
 
-        .fun-mode { animation: pulse 1s infinite; box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.4); }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            font-family: 'Press Start 2P', sans-serif;
+            color: var(--text-light);
+            margin: 0;
+            background-color: var(--secondary-dark);
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: var(--text-light);
+            text-align: center;
+            padding: 15px;
+            background-color: var(--accent-purple);
+            margin: 0;
+        }
+
+        h2 {
+            color: var(--text-light);
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            margin: 0 0 10px 0;
+        }
+
+        .topnav {
+            background-color: var(--accent-purple);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .fun-mode {
+            animation: pulse 1s infinite;
+            box-shadow: 0px 0px 20px rgba(138, 61, 173, 0.4);
+        }
+
+        .container {
+            margin: 15px auto;
+            max-width: 1280px;
+            width: 90%
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
         .glow-on-hover:hover {
-            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.6), 0 5px 15px rgba(255, 255, 0, 0.4);
+            box-shadow: 0 5px 15px rgba(107, 47, 138, 0.6), 0 5px 15px rgba(138, 61, 173, 0.4);
         }
 
-        .tab a { color: #ff4081 !important; }
+        .tab a { color: var(--highlight-purple) !important; }
         ul.tabs { border-radius: 12px; }
-        .tab a.active { background-color: rgba(255, 64, 129, 0.2) !important; color: #ff4081 !important; }
-        .indicator { background-color: #ff4081 !important; }
+        .tab a.active {
+            background-color: var(--primary-dark) !important;
+            color: var(--highlight-purple) !important;
+        }
+        .indicator { background-color: var(--highlight-purple) !important; }
 
         .control-card {
-            background: linear-gradient(145deg, #303030, #484848);
+            background: linear-gradient(145deg, var(--primary-dark), var(--secondary-dark));
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
@@ -44,21 +102,29 @@ const char* html = R"html(
             margin: inherit;
         }
 
-        .joint-section {align-content: space-evenly;}
+        .joint-section {
+            align-content: space-evenly;
+        }
 
         .collection-item {
             border-radius: 12px;
-            background-color: #ffffff00 !important;!i;!;
-            border-bottom: none !important;!i;!;
-            margin: 5px !important;!i;!;
+            background-color: transparent !important;
+            border-bottom: none !important;
+            margin: 5px !important;
         }
 
         .collection {
             border: none;
         }
 
-        .btn-floating, .btn { background-color: #ff4081; border-radius: 8px; }
-        .btn:hover, .btn-floating:hover { background-color: #e91e63; }
+        .btn-floating, .btn {
+            background-color: var(--detect-button);
+            border-radius: 8px;
+        }
+
+        .btn:hover, .btn-floating:hover {
+            background-color: var(--detect-button-hover);
+        }
 
         .movement-grid {
             display: grid;
@@ -69,27 +135,54 @@ const char* html = R"html(
         }
 
         .center-align i {
-            color: #ffffff;
+            color: var(--text-light);
         }
 
         .tooltip:hover::after {
             content: attr(data-tooltip);
-            color: white;
-            background: #424242;
+            color: var(--text-light);
+            background: var(--primary-dark);
             padding: 6px 10px;
             position: absolute;
             font-size: 0.8em;
             transform: translateY(-100%);
             white-space: nowrap;
         }
+
+        .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .movement-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 120px;
+        padding: 0 20px;
+        height: 36px;
+    }
+
+    .movement-btn i {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .movement-btn span {
+        font-size: 14px;
+    }
     </style>
 </head>
 <body>
+    <div class="topnav">
+        <h1>Robot Control Madness</h1>
+    </div>
     <div class="container">
         <div class="row">
             <div class="col s12">
-                <h4 class="center-align" style="color: #ff4081">Robot Control Madness</h4>
-
                 <div class="nav-tabs">
                     <ul class="tabs">
                         <li class="tab col s6"><a class="active" href="#BodyControl">
@@ -211,21 +304,26 @@ const char* html = R"html(
                         <div class="center-align">
                             <h5>Pre-defined Movements</h5>
                             <div class="collection">
-                                <div class="collection-item">
-                                    <button class="btn waves-effect waves-light" onclick="sendCommand('m h')">
-                                        <i class="material-icons left">home</i>Home
+                                <div class="collection-item button-group">
+                                    <button class="btn waves-effect waves-light movement-btn" onclick="sendCommand('m h')">
+                                        <i class="material-icons">home</i>
+                                        <span>Home</span>
                                     </button>
-                                    <button class="btn waves-effect waves-light" onclick="sendCommand('m s')">
-                                        <i class="material-icons left">search</i>Scan
+                                    <button class="btn waves-effect waves-light movement-btn" onclick="sendCommand('m s')">
+                                        <i class="material-icons">search</i>
+                                        <span>Scan</span>
                                     </button>
-                                    <button class="btn waves-effect waves-light" onclick="sendCommand('m p')">
-                                        <i class="material-icons left">pan_tool</i>Pick
+                                    <button class="btn waves-effect waves-light movement-btn" onclick="sendCommand('m p')">
+                                        <i class="material-icons">pan_tool</i>
+                                        <span>Pick</span>
                                     </button>
-                                    <button class="btn waves-effect waves-light" onclick="sendCommand('m d')">
-                                        <i class="material-icons left">get_app</i>Drop
+                                    <button class="btn waves-effect waves-light movement-btn" onclick="sendCommand('m d')">
+                                        <i class="material-icons">get_app</i>
+                                        <span>Drop</span>
                                     </button>
-                                    <button class="btn waves-effect waves-light" onclick="sendCommand('m w')">
-                                        <i class="material-icons left">wave</i>Wave
+                                    <button class="btn waves-effect waves-light movement-btn" onclick="sendCommand('m w')">
+                                        <i class="material-icons">waving_hand</i>
+                                        <span>Wave</span>
                                     </button>
                                 </div>
                             </div>
@@ -300,8 +398,6 @@ const char* html = R"html(
         });
 
         function sendCommand(cmd) {
-            // Encode the command, but preserve the + symbol
-            cmd = cmd.replace("+", "%2B");
             fetch('/command?cmd=' + cmd)
                 .then(response => response.text())
                 .then(data => {
