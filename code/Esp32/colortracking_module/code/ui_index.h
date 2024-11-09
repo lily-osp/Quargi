@@ -2,12 +2,12 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ESP32-CAM COLOR DETECTION</title>
+    <title>ESP32-CAMERA COLOR DETECTION</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script async src="https://docs.opencv.org/master/opencv.js" type="text/javascript"></script>
+    <script async src=" https://docs.opencv.org/master/opencv.js" type="text/javascript"></script>
     <style>
         :root {
             --primary-dark: #2D1B36;
@@ -278,130 +278,126 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
 <body>
     <div class="topnav">
-        <h1>ESP32-CAM Color Detection</h1>
+        <h1>ESP32-CAM Color Detection and Tracking</h1>
     </div>
-
     <div class="main-controls">
-        <div class="button-container">
-            <button id="colorDetect" class="main-button">
-                <span class="material-icons">colorize</span>
-                Color Detection
-            </button>
-            <button id="restart" class="main-button">
-                <span class="material-icons">refresh</span>
-                Reset Board
-            </button>
-        </div>
+        <table>
+            <tr>
+                <td><center><input type="button" id="colorDetect" value="COLOR DETECTION"></center></td>
+                <td><center><input type="button" id="restart" value="RESET BOARD"></center></td>
+            </tr>
+        </table>
     </div>
-
     <div class="container">
-        <div class="row">
-            <div class="column">
-                <div class="section">
-                    <div class="video-container">
-                        <h2><span class="material-icons">videocam</span> Video Streaming</h2>
-                        <img id="ShowImage" src="" style="display:none">
-                        <canvas id="canvas" style="display:none"></canvas>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <table>
-                        <tr>
-                            <td>Quality</td>
-                            <td><input type="range" id="quality" min="10" max="63" value="10"></td>
-                        </tr>
-                        <tr>
-                            <td>Brightness</td>
-                            <td><input type="range" id="brightness" min="-2" max="2" value="0"></td>
-                        </tr>
-                        <tr>
-                            <td>Contrast</td>
-                            <td><input type="range" id="contrast" min="-2" max="2" value="0"></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="section">
-                    <h2><span class="material-icons">palette</span> RGB Color Trackbars</h2>
-                    <table>
-                        <tr>
-                            <td>R min: <span id="RMINdemo"></span></td>
-                            <td><input type="range" id="rmin" min="0" max="255" value="0"></td>
-                            <td>R max: <span id="RMAXdemo"></span></td>
-                            <td><input type="range" id="rmax" min="0" max="255" value="50"></td>
-                        </tr>
-                        <tr>
-                            <td>G min: <span id="GMINdemo"></span></td>
-                            <td><input type="range" id="gmin" min="0" max="255" value="0"></td>
-                            <td>G max: <span id="GMAXdemo"></span></td>
-                            <td><input type="range" id="gmax" min="0" max="255" value="50"></td>
-                        </tr>
-                        <tr>
-                            <td>B min: <span id="BMINdemo"></span></td>
-                            <td><input type="range" id="bmin" min="0" max="255" value="0"></td>
-                            <td>B max: <span id="BMAXdemo"></span></td>
-                            <td><input type="range" id="bmax" min="0" max="255" value="50"></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="section">
-                    <h2><span class="material-icons">image</span> Threshold Minimum-Binary Image</h2>
-                    <table>
-                        <tr>
-                            <td>Minimum Threshold: <span id="THRESH_MINdemo"></span></td>
-                            <td><input type="range" id="thresh_min" min="0" max="255" value="120"></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="section">
-                    <h2><span class="material-icons">adjust</span> Color Probe</h2>
-                    <table>
-                        <tr>
-                            <td>X probe: <span id="X_PROBEdemo"></span></td>
-                            <td><input type="range" id="x_probe" min="0" max="400" value="200"></td>
-                            <td>Y probe: <span id="Y_PROBEdemo"></span></td>
-                            <td><input type="range" id="y_probe" min="0" max="296" value="148"></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="section">
-                    <table>
-                        <tr>
-                            <td><button id="invertButton"><span class="material-icons">invert_colors</span> INVERT</button></td>
-                            <td><button id="contourButton"><span class="material-icons">filter_hdr</span> SHOW CONTOUR</button></td>
-                            <td><button id="trackButton"><span class="material-icons">gps_fixed</span> TRACKING</button></td>
-                        </tr>
-                    </table>
-                </div>
+    <div class = "row">
+    <div class = "column">
+        <!--<div class="section">
+            <div class ="video-container">
+                <h2>Video Streaming</h2>
+                <center><img id="ShowImage" src="" style="display:none"></center>
+                <center><canvas id="canvas" style="display:none"></canvas></center>
             </div>
-
-            <div class="column">
-                <div class="section">
-                    <h2><span class="material-icons">layers</span> Image Mask</h2>
-                    <canvas id="imageMask"></canvas>
-                </div>
-                <div class="section">
-                    <h2><span class="material-icons">photo</span> Image Canvas</h2>
-                    <canvas id="imageCanvas"></canvas>
-                </div>
-                <div class="section">
-                    <table>
-                        <tr>
-                            <td><strong>XCM:</strong> <span id="XCMdemo"></span></td>
-                            <td><strong>YCM:</strong> <span id="YCMdemo"></span></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="section">
-                    <canvas id="textCanvas" width="480" height="180"></canvas>
-                </div>
-            </div>
+        </div>-->
+        <div class="section">
+            <table>
+                <tr>
+                    <td>Quality</td>
+                    <td><input type="range" id="quality" min="10" max="63" value="10"></td>
+                </tr>
+                <tr>
+                    <td>Brightness</td>
+                    <td><input type="range" id="brightness" min="-2" max="2" value="0"></td>
+                </tr>
+                <tr>
+                    <td>Contrast</td>
+                    <td><input type="range" id="contrast" min="-2" max="2" value="0"></td>
+                </tr>
+            </table>
         </div>
-    </div>
+
+        <div class="section">
+        <h2>RGB Color Trackbars</h2>
+        <table>
+            <tr>
+                <td>R min:&#160;&#160;&#160;<span id="RMINdemo"></span></td>
+                <td><input type="range" id="rmin" min="0" max="255" value="0" class = "slider"></td>
+                <td>R max:&#160;&#160;&#160;<span id="RMAXdemo"></span></td>
+                <td><input type="range" id="rmax" min="0" max="255" value="50" class = "slider"></td>
+            </tr>
+            <tr>
+                <td>G min:&#160;&#160;&#160;<span id="GMINdemo"></span></td>
+                <td><input type="range" id="gmin" min="0" max="255" value="0" class = "slider"></td>
+                <td>G max:&#160;&#160;&#160;<span id="GMAXdemo"></span></td>
+                <td><input type="range" id="gmax" min="0" max="255" value="50" class = "slider"></td>
+            </tr>
+            <tr>
+                <td>B min:&#160;&#160;&#160;<span id ="BMINdemo"></span></td>
+                <td><input type="range" id="bmin" min="0" max="255" value="0" class = "slider">  </td>
+                <td>B max:&#160;&#160;&#160;<span id="BMAXdemo"></span></td>
+                <td> <input type="range" id="bmax" min="0" max="255" value="50" class = "slider">   </td>
+            </tr>
+        </table>
+        </div>
+
+        <div class="section">
+        <h2>Color Probe</h2>
+        <table>
+            <tr>
+                <td>X probe:&#160;&#160;&#160;<span id="X_PROBEdemo"></span></td>
+                <td><input type="range" id="x_probe" min="0" max="400" value="200" class = "slider"></td>
+                <td>Y probe:&#160;&#160;&#160;<span id="Y_PROBEdemo"></span></td>
+                <td> <input type="range" id="y_probe" min="0" max="296" value="148" class = "slider"></td>
+            </tr>
+        </table>
+        </div>
+
+        <div class="section">
+            <table>
+                <tr>
+                    <td><button type="button" id="invertButton" class="btn btn-primary">INVERT</button></td>
+                    <td><button type="button" id="contourButton" class="btn btn-primary">SHOW CONTOUR</button></td>
+                    <td><button type="button" id="trackButton" class="btn btn-primary">TRACKING</button></td>
+                </tr>
+                <tr>
+                    <td>Invert: <span id="INVERTdemo"></span></td>
+                    <td>Contour: <span id="CONTOURdemo"></span></td>
+                    <td>Track: <span id="TRACKdemo"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <table>
+                <tr>
+                    <td><strong>XCM:</strong> <span id="XCMdemo"></span></td>
+                    <td><strong>YCM:</strong> <span id="YCMdemo"></span></td>
+                </tr>
+            </table>
+        </div>
+
+    </div>   <!------endfirstcolumn---------------->
+
+    <div class = "column">
+        <div class="section">
+            <h2>Image Mask</h2>
+            <canvas id="imageMask"></canvas>
+        </div>
+        <div class="section">
+            <h2>Image Canvas</h2>
+            <canvas id="imageCanvas"></canvas>
+        </div>
+
+        <div class="section">
+            <canvas id="textCanvas" width="480" height="180" style= "border: 1px solid #black;"></canvas>
+            <iframe id="ifr" style="display:none"></iframe>
+            <div id="message"></div>
+        </div>
+        </div>  <!------end2ndcolumn------------------------>
+    </div>   <!-----endrow---------------------->
+    </div>   <!------endcontainer-------------->
+    <!--------------- </body>----------------->
+    <!----------------</html>----------------->
     <div class="modal"></div>
     <script>
         var colorDetect = document.getElementById('colorDetect');
@@ -462,17 +458,16 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         document.body.classList.remove("loading");
         }
 
-
         function error_handle() {
         restartCount++;
         clearInterval(myTimer);
         if (restartCount<=2) {
-            message.innerHTML = "Get still error. <br>Restart ESP32-CAM "+restartCount+" times.";
-            myTimer = setInterval(function(){colorDetect.click();},10000);
-            ifr.src = document.location.origin+'?restart';
+        message.innerHTML = "Get still error. <br>Restart ESP32-CAM "+restartCount+" times.";
+        myTimer = setInterval(function(){colorDetect.click();},10000);
+        ifr.src = document.location.origin+'?restart';
         }
         else
-            message.innerHTML = "Get still error. <br>Please close the page and check ESP32-CAM.";
+        message.innerHTML = "Get still error. <br>Please close the page and check ESP32-CAM.";
         }
         colorDetect.style.display = "block";
         ShowImage.onload = function (event) {
@@ -545,9 +540,9 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         var RMINoutput = document.getElementById("RMINdemo");
         RMINoutput.innerHTML = RMINslider.value;
         RMINslider.oninput = function(){
-            RMINoutput.innerHTML = this.value;
-            RMIN = parseInt(RMINoutput.innerHTML,10);
-            console.log("RMIN=" + RMIN);
+        RMINoutput.innerHTML = this.value;
+        RMIN = parseInt(RMINoutput.innerHTML,10);
+        console.log("RMIN=" + RMIN);
         }
         console.log("RMIN=" + RMIN);
 
@@ -555,8 +550,8 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         var GMAXoutput = document.getElementById("GMAXdemo");
         GMAXoutput.innerHTML = GMAXslider.value;
         GMAXslider.oninput = function(){
-            GMAXoutput.innerHTML = this.value;
-            GMAX = parseInt(GMAXoutput.innerHTML,10);
+        GMAXoutput.innerHTML = this.value;
+        GMAX = parseInt(GMAXoutput.innerHTML,10);
         }
         console.log("GMAX=" + GMAX);
 
@@ -564,8 +559,8 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         var GMINoutput = document.getElementById("GMINdemo");
         GMINoutput.innerHTML = GMINslider.value;
         GMINslider.oninput = function(){
-            GMINoutput.innerHTML = this.value;
-            GMIN = parseInt(GMINoutput.innerHTML,10);
+        GMINoutput.innerHTML = this.value;
+        GMIN = parseInt(GMINoutput.innerHTML,10);
         }
         console.log("GMIN=" + GMIN);
 
@@ -573,8 +568,8 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         var BMAXoutput = document.getElementById("BMAXdemo");
         BMAXoutput.innerHTML = BMAXslider.value;
         BMAXslider.oninput = function(){
-            BMAXoutput.innerHTML = this.value;
-            BMAX = parseInt(BMAXoutput.innerHTML,10);
+        BMAXoutput.innerHTML = this.value;
+        BMAX = parseInt(BMAXoutput.innerHTML,10);
         }
         console.log("BMAX=" + BMAX);
 
@@ -614,29 +609,28 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         }
         console.log("Y_PROBE=" + Y_PROBE);
 
-
         document.getElementById('trackButton').onclick = function(){
-            b_tracker = (true && !b_tracker)
-            console.log("TRACKER = " + b_tracker );
-            var TRACKoutput = document.getElementById("TRACKdemo");
-            TRACKoutput.innerHTML = b_tracker;
-            //var XCMoutput = document.getElementById("XCMdemo");
-            //XCMoutput.innerHTML = x_cm;
+        b_tracker = (true && !b_tracker)
+        console.log("TRACKER = " + b_tracker );
+        var TRACKoutput = document.getElementById("TRACKdemo");
+        TRACKoutput.innerHTML = b_tracker;
+        //var XCMoutput = document.getElementById("XCMdemo");
+        //XCMoutput.innerHTML = x_cm;
 
         }
 
         document.getElementById('invertButton').onclick = function(){
-            b_invert = (true && !b_invert)
-            console.log("TRACKER = " + b_invert );
-            var INVERToutput = document.getElementById("INVERTdemo");
-            INVERToutput.innerHTML = b_invert;
+        b_invert = (true && !b_invert)
+        console.log("TRACKER = " + b_invert );
+        var INVERToutput = document.getElementById("INVERTdemo");
+        INVERToutput.innerHTML = b_invert;
         }
 
         document.getElementById('contourButton').onclick = function(){
-            b_contour = (true && !b_contour)
-            console.log("TRACKER = " + b_contour );
-            var CONTOURoutput = document.getElementById("CONTOURdemo");
-            CONTOURoutput.innerHTML = b_contour;
+        b_contour = (true && !b_contour)
+        console.log("TRACKER = " + b_contour );
+        var CONTOURoutput = document.getElementById("CONTOURdemo");
+        CONTOURoutput.innerHTML = b_contour;
         }
 
         let tracker = 0;
@@ -669,8 +663,8 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         clear_canvas();
 
         orig = cv.imread(ShowImage);
-        cv.split(orig,rgbaPlanes);
-        let BP = rgbaPlanes.get(2);
+        cv.split(orig,rgbaPlanes);  //SPLIT
+        let BP = rgbaPlanes.get(2);  // SELECTED COLOR PLANE
         let GP = rgbaPlanes.get(1);
         let RP = rgbaPlanes.get(0);
         cv.merge(rgbaPlanes,orig);
@@ -700,111 +694,130 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         let high = new cv.Mat(src.rows,src.cols,src.type(),[RMAX,GMAX,BMAX,255]);
         let low = new cv.Mat(src.rows,src.cols,src.type(),[RMIN,GMIN,BMIN,0]);
 
-        cv.inRange(src,low,high,mask1); //inRange(source image, lower limit, higher limit, destination image)
-        cv.threshold(mask1,mask,THRESH_MIN,255,cv.THRESH_BINARY); //threshold(source image,destination image,threshold,255,threshold method);
+        cv.inRange(src,low,high,mask1);
+        //inRange(source image, lower limit, higher limit, destination image)
 
-        if(b_invert==true){cv.bitwise_not(mask,mask2);}
+        cv.threshold(mask1,mask,THRESH_MIN,255,cv.THRESH_BINARY);
+        //threshold(source image,destination image,threshold,255,threshold method);
 
+        if(b_invert==true){
+            cv.bitwise_not(mask,mask2);
+        }
         /********************start contours******************************************/
-        if(b_tracker == true){
-            try{
-                if(b_invert==false){cv.findContours(mask,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);}
-                else{cv.findContours(mask2,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);}
-            console.log("CONTOUR_SIZE = " + contours.size());
+            if(b_tracker == true){
+                try{
+                    if(b_invert==false){
+                    cv.findContours(mask,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);
+                    //findContours(source image, array of contours found, hierarchy of contours
+                        // if contours are inside other contours, method of contour data retrieval,
+                        //algorithm method)
+                    }
+                    else{
+                    cv.findContours(mask2,contours,hierarchy,cv.RETR_CCOMP,cv.CHAIN_APPROX_SIMPLE);
+                    }
+                    console.log("CONTOUR_SIZE = " + contours.size());
 
-            //draw contours
-            if(b_contour==true){
-                for(let i = 0; i < contours.size(); i++){
-                    cv.drawContours(src,contours,i,[0,0,0,255],2,cv.LINE_8,hierarchy,100)
-                }
-            }
+                    //draw contours
+                    if(b_contour==true){
+                        for(let i = 0; i < contours.size(); i++){
+                        cv.drawContours(src,contours,i,[0,0,0,255],2,cv.LINE_8,hierarchy,100)
+                        }
+                    }
 
-            /* Marks the beginning of finding the moments of the contours found */
+                    /* Marks the beginning of finding the moments of the contours found */
 
-            let cnt;
-            let Moments;
-            let M00;
-            let M10;
+                    let cnt;
+                    let Moments;
+                    let M00;
+                    let M10;
 
-            for(let k = 0; k < contours.size(); k++){
-                cnt = contours.get(k);
-                Moments = cv.moments(cnt,false);
-                M00Array[k] = Moments.m00;
-            // cnt.delete();
-            }
 
-            let max_area_arg = MaxAreaArg(M00Array);
-            console.log("MAXAREAARG = "+max_area_arg);
+                    for(let k = 0; k < contours.size(); k++){
+                        cnt = contours.get(k);
+                        Moments = cv.moments(cnt,false);
+                        M00Array[k] = Moments.m00;
+                        // cnt.delete();
+                    }
 
-            let ArgMaxArea = MaxAreaArg(M00Array);
-            if(ArgMaxArea >= 0){
-            cnt = contours.get(MaxAreaArg(M00Array));
-            //cnt = contours.get(54);
-            Moments = cv.moments(cnt,false);
-            M00 = Moments.m00;
-            M10 = Moments.m10;
-            M01 = Moments.m01;
-            x_cm = M10/M00;    // 75 for circle_9.jpg
-            y_cm = M01/M00;    // 41 for circle_9.jpg
+                    let max_area_arg = MaxAreaArg(M00Array);
+                    console.log("MAXAREAARG = "+max_area_arg);
 
-            XCMoutput.innerHTML = Math.round(x_cm);
-            YCMoutput.innerHTML = Math.round(y_cm);
+                    //let TestArray = [0,0,0,15,4,15,2];
+                    //let TestArray0 = [];
+                    //let max_test_area_arg = MaxAreaArg(TestArray0);
+                    //console.log("MAXTESTAREAARG = "+max_test_area_arg);
 
-            console.log("M00 = "+M00);
-            console.log("XCM = "+Math.round(x_cm));
-            console.log("YCM = "+Math.round(y_cm));
+                    let ArgMaxArea = MaxAreaArg(M00Array);
+                    if(ArgMaxArea >= 0){
+                        cnt = contours.get(MaxAreaArg(M00Array));  //use the contour with biggest MOO
+                        //cnt = contours.get(54);
+                        Moments = cv.moments(cnt,false);
+                        M00 = Moments.m00;
+                        M10 = Moments.m10;
+                        M01 = Moments.m01;
+                        x_cm = M10/M00;    // 75 for circle_9.jpg
+                        y_cm = M01/M00;    // 41 for circle_9.jpg
 
-            //fetch(document.location.origin+'/?xcm='+Math.round(x_cm)+';stop');
-            fetch(document.location.origin+'/?cm='+Math.round(x_cm)+';'+Math.round(y_cm)+';stop');
+                        XCMoutput.innerHTML = Math.round(x_cm);
+                        YCMoutput.innerHTML = Math.round(y_cm);
 
-            console.log("M00ARRAY = " + M00Array);
+                        console.log("M00 = "+M00);
+                        console.log("XCM = "+Math.round(x_cm));
+                        console.log("YCM = "+Math.round(y_cm));
 
-            //**************min area bounding rect********************
-            //let rotatedRect=cv.minAreaRect(cnt);
-            //let vertices = cv.RotatedRect.points(rotatedRect);
+                        //fetch(document.location.origin+'/?xcm='+Math.round(x_cm)+';stop');
+                        fetch(document.location.origin+'/?cm='+Math.round(x_cm)+';'+Math.round(y_cm)+';stop');
 
-            //for(let j=0;j<4;j++){
-            //    cv.line(src,vertices[j],
-            //        vertices[(j+1)%4],[0,0,255,255],2,cv.LINE_AA,0);
-            //}
-            //***************end min area bounding rect*************************************
+                        console.log("M00ARRAY = " + M00Array);
 
-            //***************bounding rect***************************
-            let rect = cv.boundingRect(cnt);
-            let point1 = new cv.Point(rect.x,rect.y);
-            let point2 = new cv.Point(rect.x+rect.width,rect.y+rect.height);
+                        //**************min area bounding rect********************
+                        //let rotatedRect=cv.minAreaRect(cnt);
+                        //let vertices = cv.RotatedRect.points(rotatedRect);
 
-            cv.rectangle(src,point1,point2,[0,0,255,255],2,cv.LINE_AA,0);
-            //*************end bounding rect***************************
+                        //for(let j=0;j<4;j++){
+                        //    cv.line(src,vertices[j],
+                        //        vertices[(j+1)%4],[0,0,255,255],2,cv.LINE_AA,0);
+                        //}
+                        //***************end min area bounding rect*************************************
 
-            //*************draw center point*********************
-            let point3 = new cv.Point(x_cm,y_cm);
-            cv.circle(src,point3,2,[0,0,255,255],2,cv.LINE_AA,0);
-            //***********end draw center point*********************
 
-            }//end if(ArgMaxArea >= 0)
-            else{
-            if(ArgMaxArea==-1){
-                console.log("ZERO ARRAY LENGTH");
-            }
-            else{              //ArgMaxArea=-2
-                console.log("DUPLICATE MAX ARRAY-ELEMENT");
-            }
-            }
+                        //***************bounding rect***************************
+                        let rect = cv.boundingRect(cnt);
+                        let point1 = new cv.Point(rect.x,rect.y);
+                        let point2 = new cv.Point(rect.x+rect.width,rect.y+rect.height);
 
-            cnt.delete();
-            /******************end contours  note cnt line one up*******************************************/
-            drawXCM_YCM_Text();
+                        cv.rectangle(src,point1,point2,[0,0,255,255],2,cv.LINE_AA,0);
+                        //*************end bounding rect***************************
 
-            }//end try
 
-        catch{
+                        //*************draw center point*********************
+                        let point3 = new cv.Point(x_cm,y_cm);
+                        cv.circle(src,point3,2,[0,0,255,255],2,cv.LINE_AA,0);
+                        //***********end draw center point*********************
+
+                    }//end if(ArgMaxArea >= 0)
+                    else{
+                        if(ArgMaxArea==-1){
+                        console.log("ZERO ARRAY LENGTH");
+                        }
+                        else{              //ArgMaxArea=-2
+                        console.log("DUPLICATE MAX ARRAY-ELEMENT");
+                        }
+                    }
+
+                    cnt.delete();
+                    /******************end contours  note cnt line one up*******************************************/
+                    drawXCM_YCM_Text();
+
+                }//end try
+
+            catch{
             console.log("ERROR TRACKER NO CONTOUR");
             clear_canvas();
             drawErrorTracking_Text();
-        }
-
+            }
         }//end b_tracking if statement
+
         else{
             XCMoutput.innerHTML = 0;
             YCMoutput.innerHTML = 0;
@@ -816,6 +829,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         else{
             cv.imshow('imageMask', mask2);
         }
+        //cv.imshow('imageMask', R);
         cv.imshow('imageCanvas', src);
 
         src.delete();
@@ -912,6 +926,6 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
             ctx.fillText('ERROR TRACKING-NO CONTOUR',0,3*txtcanvas.height/10);
         }
     </script>
-</body>
+    </body>
 </html>
 )rawliteral";
