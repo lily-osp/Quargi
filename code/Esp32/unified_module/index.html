@@ -181,11 +181,14 @@
             <div class="col s12">
                 <div class="nav-tabs">
                     <ul class="tabs">
-                        <li class="tab col s6"><a class="active" href="#BodyControl">
+                        <li class="tab col s4"><a class="active" href="#BodyControl">
                             <i class="material-icons left">directions_car</i> Body Control
                         </a></li>
-                        <li class="tab col s6"><a href="#ArmControl">
+                        <li class="tab col s4"><a href="#ArmControl">
                             <i class="material-icons left">build</i> Arm Control
+                        </a></li>
+                        <li class="tab col s4"><a href="#EyeControl">
+                            <i class="material-icons left">visibility</i> Eye Control
                         </a></li>
                     </ul>
                 </div>
@@ -377,6 +380,160 @@
                                     <button class="btn waves-effect waves-light" onclick="sendCommand('clear')">
                                         <i class="material-icons left">clear</i>Clear Recording
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="EyeControl">
+                        <div class="control-card">
+                            <div class="button-group">
+                                <button class="btn-large waves-effect waves-light movement-btn" id="colorDetect">
+                                    <i class="material-icons">colorize</i>
+                                    <span>Color Detection</span>
+                                </button>
+                                <button class="btn-large waves-effect waves-light movement-btn" id="restart">
+                                    <i class="material-icons">refresh</i>
+                                    <span>Reset Board</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="container">
+                            <div class="row">
+                                <div class="col s12 m6">
+                                    <div class="control-card">
+                                        <h5><i class="material-icons">tune</i> Camera Settings</h5>
+                                        <div class="input-field">
+                                            <p class="range-field">
+                                                <label>Quality</label>
+                                                <input type="range" id="quality" min="10" max="63" value="10">
+                                            </p>
+                                            <p class="range-field">
+                                                <label>Brightness</label>
+                                                <input type="range" id="brightness" min="-2" max="2" value="0">
+                                            </p>
+                                            <p class="range-field">
+                                                <label>Contrast</label>
+                                                <input type="range" id="contrast" min="-2" max="2" value="0">
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-card">
+                                        <h5><i class="material-icons">palette</i> RGB Color Trackbars</h5>
+                                        <div class="input-field">
+                                            <div class="row">
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>R min: <span id="RMINdemo"></span></label>
+                                                        <input type="range" id="rmin" min="0" max="255" value="0">
+                                                    </p>
+                                                </div>
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>R max: <span id="RMAXdemo"></span></label>
+                                                        <input type="range" id="rmax" min="0" max="255" value="50">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>G min: <span id="GMINdemo"></span></label>
+                                                        <input type="range" id="gmin" min="0" max="255" value="0">
+                                                    </p>
+                                                </div>
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>G max: <span id="GMAXdemo"></span></label>
+                                                        <input type="range" id="gmax" min="0" max="255" value="50">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>B min: <span id="BMINdemo"></span></label>
+                                                        <input type="range" id="bmin" min="0" max="255" value="0">
+                                                    </p>
+                                                </div>
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>B max: <span id="BMAXdemo"></span></label>
+                                                        <input type="range" id="bmax" min="0" max="255" value="50">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-card">
+                                        <h5><i class="material-icons">gps_fixed</i> Color Probe</h5>
+                                        <div class="input-field">
+                                            <div class="row">
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>X probe: <span id="X_PROBEdemo"></span></label>
+                                                        <input type="range" id="x_probe" min="0" max="400" value="200">
+                                                    </p>
+                                                </div>
+                                                <div class="col s6">
+                                                    <p class="range-field">
+                                                        <label>Y probe: <span id="Y_PROBEdemo"></span></label>
+                                                        <input type="range" id="y_probe" min="0" max="296" value="148">
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-card">
+                                        <div class="button-group">
+                                            <button class="btn waves-effect waves-light" id="invertButton">
+                                                <i class="material-icons">invert_colors</i>
+                                                <span>Invert</span>
+                                                <span class="badge" id="INVERTdemo"></span>
+                                            </button>
+                                            <button class="btn waves-effect waves-light" id="contourButton">
+                                                <i class="material-icons">gesture</i>
+                                                <span>Show Contour</span>
+                                                <span class="badge" id="CONTOURdemo"></span>
+                                            </button>
+                                            <button class="btn waves-effect waves-light" id="trackButton">
+                                                <i class="material-icons">track_changes</i>
+                                                <span>Tracking</span>
+                                                <span class="badge" id="TRACKdemo"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-card">
+                                        <div class="row">
+                                            <div class="col s6">
+                                                <h6><i class="material-icons">location_searching</i> XCM: <span id="XCMdemo"></span></h6>
+                                            </div>
+                                            <div class="col s6">
+                                                <h6><i class="material-icons">location_searching</i> YCM: <span id="YCMdemo"></span></h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col s12 m6">
+                                    <div class="control-card">
+                                        <h5><i class="material-icons">filter_center_focus</i> Image Mask</h5>
+                                        <canvas id="imageMask" class="responsive-img"></canvas>
+                                    </div>
+                                    <div class="control-card">
+                                        <h5><i class="material-icons">image</i> Image Canvas</h5>
+                                        <canvas id="imageCanvas" class="responsive-img"></canvas>
+                                    </div>
+                                    <div class="control-card">
+                                        <canvas id="textCanvas" width="480" height="180" class="responsive-img"></canvas>
+                                        <iframe id="ifr" style="display:none"></iframe>
+                                        <div id="message"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
