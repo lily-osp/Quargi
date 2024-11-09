@@ -4,7 +4,7 @@
 #include "esp_camera.h"
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
-#include "index_tracking.h"
+#include "ui_index.h"
 
 const char* ssid = "ssid"; /* Replace your SSID */
 const char* password = "password"; /* Replace your Password */
