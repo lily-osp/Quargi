@@ -2,12 +2,12 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ESP32-CAMERA COLOR DETECTION</title>
+    <title>ESP32-CAM COLOR DETECTION</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script async src=" https://docs.opencv.org/master/opencv.js" type="text/javascript"></script>
+    <script async src="https://docs.opencv.org/master/opencv.js" type="text/javascript"></script>
     <style>
         :root {
             --primary-dark: #2D1B36;
@@ -393,7 +393,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
             <iframe id="ifr" style="display:none"></iframe>
             <div id="message"></div>
         </div>
-        </div>  <!------end2ndcolumn------------------------>
+    </div>  <!------end2ndcolumn------------------------>
     </div>   <!-----endrow---------------------->
     </div>   <!------endcontainer-------------->
     <!--------------- </body>----------------->
@@ -402,7 +402,10 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
     <script>
         var colorDetect = document.getElementById('colorDetect');
         var ShowImage = document.getElementById('ShowImage');
-        var canvas = document.getElementById("canvas");
+        var canvas = document.createElement('canvas'); // Create canvas dynamically
+        canvas.id = 'canvas';
+        canvas.style.display = 'none'; // Keep canvas hidden
+        document.body.appendChild(canvas);
         var context = canvas.getContext("2d");
         var imageMask = document.getElementById("imageMask");
         var imageMaskContext = imageMask.getContext("2d");
@@ -448,48 +451,60 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
         }
 
         var Module = {
-        onRuntimeInitialized(){onOpenCvReady();}
+            onRuntimeInitialized() {
+                onOpenCvReady();
+            }
+        };
+
+        // Add OpenCV.js script tag dynamically
+        var script = document.createElement('script');
+        script.src = 'opencv.js'; // Make sure opencv.js is in the same directory
+        script.onload = function() {
+            cv['onRuntimeInitialized']=()=>{
+                console.log("OpenCV IS READY!!!");
+                onOpenCvReady();
+            }
+        };
+        document.head.appendChild(script);
+
+
+        function onOpenCvReady() {
+            console.log("OpenCV initialized");
+            drawReadyText();
+            // Initialize other components or start processing here
+            colorDetect.style.display = "block";
+            if (ShowImage.complete && ShowImage.naturalHeight !== 0) {
+                ShowImage.onload(); // Call onload manually if image has already loaded
+            }
         }
 
-        function onOpenCvReady(){
-        //alert("onOpenCvReady");
-        console.log("OpenCV IS READY!!!");
-        drawReadyText();
-        document.body.classList.remove("loading");
-        }
-
+        var errCount = 0;
         function error_handle() {
-        restartCount++;
-        clearInterval(myTimer);
-        if (restartCount<=2) {
-        message.innerHTML = "Get still error. <br>Restart ESP32-CAM "+restartCount+" times.";
-        myTimer = setInterval(function(){colorDetect.click();},10000);
-        ifr.src = document.location.origin+'?restart';
+            errCount++;
+            if (errCount <= 2) {
+                message.innerHTML = "Error loading image. <br> Retrying " + errCount + " of 2";
+                setTimeout(function(){colorDetect.click();},5000);
+            } else {
+                message.innerHTML = "Error loading image. <br> Please check ESP32-CAM.";
+            }
         }
-        else
-        message.innerHTML = "Get still error. <br>Please close the page and check ESP32-CAM.";
-        }
-        colorDetect.style.display = "block";
-        ShowImage.onload = function (event) {
-        //alert("SHOW IMAGE");
-        console.log("SHOW iMAGE");
-        clearInterval(myTimer);
-        restartCount=0;
-        canvas.setAttribute("width", ShowImage.width);
-        canvas.setAttribute("height", ShowImage.height);
-        canvas.style.display = "block";
-        imageCanvas.setAttribute("width", ShowImage.width);
-        imageCanvas.setAttribute("height", ShowImage.height);
-        imageCanvas.style.display = "block";
 
-        imageMask.setAttribute("width", ShowImage.width);
-        imageMask.setAttribute("height", ShowImage.height);
-        imageMask.style.display = "block";
+        ShowImage.onload = function () {
+            console.log("Image Loaded");
+            errCount = 0;
+            clearInterval(myTimer);
 
-        context.drawImage(ShowImage,0,0,ShowImage.width,ShowImage.height);
+            // Set canvas dimensions to match image
+            canvas.width = ShowImage.width;
+            canvas.height = ShowImage.height;
+            imageCanvas.width = ShowImage.width;
+            imageCanvas.height = ShowImage.height;
+            imageMask.width = ShowImage.width;
+            imageMask.height = ShowImage.height;
 
-        DetectImage();
-        }
+            context.drawImage(ShowImage, 0, 0, ShowImage.width, ShowImage.height);
+            DetectImage();
+        };
         restart.onclick = function (event) {
         fetch(location.origin+'/?restart=stop');
         }
@@ -926,6 +941,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
             ctx.fillText('ERROR TRACKING-NO CONTOUR',0,3*txtcanvas.height/10);
         }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     </body>
 </html>
 )rawliteral";
