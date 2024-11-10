@@ -170,9 +170,9 @@ void handleClientRequest(WiFiClient& client) {
         esp_camera_fb_return(fb);
     }
     else {
-        sendResponse(client, cmd.empty() ? INDEX_HTML : Feedback);
+        sendResponse(client, cmd.isEmpty() ? INDEX_HTML : Feedback);
     }
-}
+} 
 
 void sendImage(WiFiClient& client, camera_fb_t* fb) {
     client.println("HTTP/1.1 200 OK");
