@@ -1,4 +1,4 @@
-static const char PROGMEM INDEX_HTML[] = R"rawliteral(
+const char INDEX_HTML[] PROGMEM = R"rawliteral( 
 <!DOCTYPE html>
 <html>
 <head>
