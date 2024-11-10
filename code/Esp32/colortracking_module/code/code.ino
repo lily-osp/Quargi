@@ -116,7 +116,7 @@ void setup() {
 
     // Flash LED setup
     pinMode(4, OUTPUT);
-    digitalWrite(4, HIGH); //HIGH : LOw = on off
+    digitalWrite(4, HIGH); //HIGH : LOW = on off
 
     // WiFi configuration
     WiFi.mode(WIFI_AP_STA);
