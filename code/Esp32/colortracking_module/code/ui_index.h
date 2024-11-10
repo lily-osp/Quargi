@@ -1,4 +1,7 @@
-const char INDEX_HTML[] PROGMEM = R"rawliteral( 
+#ifndef UI_INDEX_H
+#define UI_INDEX_H
+
+const char* html = R"html(    
 <!DOCTYPE html>
 <html>
 <head>
@@ -291,13 +294,13 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
     <div class="container">
     <div class = "row">
     <div class = "column">
-        <!--<div class="section">
+        <div class="section">
             <div class ="video-container">
                 <h2>Video Streaming</h2>
                 <center><img id="ShowImage" src="" style="display:none"></center>
                 <center><canvas id="canvas" style="display:none"></canvas></center>
             </div>
-        </div>-->
+        </div>
         <div class="section">
             <table>
                 <tr>
@@ -944,4 +947,6 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     </body>
 </html>
-)rawliteral";
+)html"; 
+
+#endif // UI_INDEX_H
