@@ -1,6 +1,6 @@
 # Robot Control Web Interface
 
-A web-based interface for controlling a robot with both body movement and robotic arm capabilities. This project uses an ESP32 microcontroller to host a web server that provides a responsive, modern UI for robot control.
+A web-based interface for controlling a robot with both body movement and robotic arm capabilities. This project uses an ESP32/8266 microcontroller to host a web server that provides a responsive, modern UI for robot control.
 
 ## Interface Preview
 
@@ -46,6 +46,10 @@ A web-based interface for controlling a robot with both body movement and roboti
   - Play recorded sequences
   - Clear recordings
 
+### IP Address Indication
+- **LED Blink Sequence**
+  - The onboard LED will blink according to the last two segments of the IP address upon successful WiFi connection, repeating the sequence twice for clarity.
+
 ## Technical Specifications
 
 ### Hardware Requirements
@@ -89,6 +93,14 @@ const char* password = "YOUR_WIFI_PASSWORD";
    - Open a web browser
    - Navigate to the ESP32's IP address (printed to Serial Monitor)
    - Default port: 80
+
+### LED IP Blink Sequence
+Once connected to WiFi, the onboard LED will blink to indicate the last two segments of the IP address:
+- Blinks the number of times corresponding to the third segment
+- Short pause, then blinks for the fourth segment
+- Repeats the sequence twice
+
+This allows you to identify the robot's IP address for quick access.
 
 ### Control Commands
 

@@ -3,6 +3,9 @@
 // Set this to true for ESP32, or false for ESP8266
 const bool useESP32 = false;
 
+// Set to true to enable LED indicator, false to disable
+bool ledIndicatorEnabled = false;
+
 #if defined(ESP32)
     #include <WiFi.h>
     #include <WebServer.h>
@@ -22,7 +25,7 @@ const char* password = "password";
 // Blink delay time in milliseconds
 const int blinkDelay = 200;
 const int segmentPause = 1000; // Pause between segments
-const int repeatPause = 2500;  // Pause before repeating sequence
+const int repeatPause = 2000;  // Pause before repeating sequence
 
 void handleRoot() {
     server.send(200, "text/html", htmlContent);
@@ -50,6 +53,8 @@ void blinkLED(int times) {
 
 // Function to blink the last two segments of the IP address
 void blinkLastTwoIPSegmentsTwice() {
+    if (!ledIndicatorEnabled) return; // Skip blinking if indicator is disabled
+
     IPAddress ip = WiFi.localIP();
     int thirdSegment = ip[2];
     int fourthSegment = ip[3];
@@ -75,7 +80,7 @@ void setup() {
     Serial.print("IP : ");
     Serial.println(WiFi.localIP());
 
-    // Blink the last two IP address segments twice to indicate connection
+    // Blink the last two IP address segments twice to indicate connection, if enabled
     blinkLastTwoIPSegmentsTwice();
 
     // Setup server routes
