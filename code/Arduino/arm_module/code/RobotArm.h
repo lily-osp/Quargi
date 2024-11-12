@@ -64,7 +64,7 @@ class RobotArm {
     static const int MIN_ANGLE = 0;
     static const int MAX_ANGLE = 180;
     static const int GRIPPER_OPEN = 0;
-    static const int GRIPPER_CLOSE = 90;
+    static const int GRIPPER_CLOSE = 45;
     static const int HOME_BASE = 90;
     static const int HOME_SHOULDER = 90;
     static const int HOME_ELBOW = 90;

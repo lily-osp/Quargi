@@ -9,6 +9,7 @@
 - [Usage](#usage)
 - [Command Reference](#command-reference)
 - [Flowchart](#flowchart)
+- [Simulation](#simulation)
 - [Contributing](#contributing)
 - [Troubleshooting](#troubleshooting)
 
@@ -163,8 +164,13 @@ GRIPPER_PIN = 11   // Gripper servo
 | p h | Print help | None |
 | p s | Print saved positions | None |
 
-##
+## Flowchart
+
 ![flowchart](flowchart.png)
+
+## Simulation
+
+[wokwi simulation](https://wokwi.com/projects/413553975571905537)
 
 ## Contributing
 1. Fork the repository
