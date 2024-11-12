@@ -1,7 +1,7 @@
 #ifndef UI_INDEX_H
 #define UI_INDEX_H
 
-const char* html = R"html(
+const char* htmlContent = R"html(
 <!DOCTYPE html>
 <html>
 <head>
