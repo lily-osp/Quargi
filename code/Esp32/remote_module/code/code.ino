@@ -88,7 +88,7 @@ void setup() {
     server.on("/command", handleCommand);
 
     server.begin();
-    Serial.println("HTTP server started");
+    // Serial.println("HTTP server started");
 }
 
 void loop() {
