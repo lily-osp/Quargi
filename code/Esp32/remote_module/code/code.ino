@@ -39,8 +39,6 @@ void setup() {
         delay(1000);
     }
     
-    Serial.println("Connected to WiFi");
-    Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
     
     // Setup server routes
