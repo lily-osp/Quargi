@@ -50,6 +50,11 @@ A web-based interface for controlling a robot with both body movement and roboti
 - **LED Blink Sequence**
   - The onboard LED will blink according to the last two segments of the IP address upon successful WiFi connection, repeating the sequence twice for clarity.
 
+### mDNS host
+- easy access to the web ui.
+  - using the mDns at `http://quargi-remote.local`.
+  - using the device ip address.
+
 ## Technical Specifications
 
 ### Hardware Requirements

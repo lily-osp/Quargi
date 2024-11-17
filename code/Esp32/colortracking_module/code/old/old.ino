@@ -5,9 +5,12 @@
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 #include "ui_index.h"
+#include <ESPmDNS.h>
+
 
 const char* ssid = "ssid"; /* Replace your SSID */
 const char* password = "password"; /* Replace your Password */
+const char* mdns_name = "quargi-camera"; // mDNS hostname
 
 String Feedback = "";
 String Command = "", cmd = "", P1 = "", P2 = "", P3 = "", P4 = "", P5 = "", P6 = "", P7 = "", P8 = "", P9 = "";
@@ -196,6 +199,13 @@ void setup() {
     Serial.print("ESP IP Address: http://");
     Serial.println(WiFi.localIP());
   }
+
+  if (!MDNS.begin(mdns_name)) {
+    Serial.println("Error starting mDNS.");
+  } else {
+    Serial.printf("mDNS started: http://%s.local\n", mdns_name);
+  }
+
   server.begin();
 }
 

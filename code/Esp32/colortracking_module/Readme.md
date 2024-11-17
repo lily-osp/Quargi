@@ -100,7 +100,7 @@ The following camera settings can be adjusted via HTTP commands:
 ## Usage
 1. Power up the ESP32-CAM
 2. Connect to the WiFi network specified in the code
-3. Access the web interface using the IP address printed in the Serial Monitor
+3. Access the web interface using the IP address printed in the Serial Monitor or use the mDNS at `http://quargi-camera.local`
 4. Use HTTP commands to control the camera settings
 
 ## HTTP API Examples
