@@ -41,40 +41,66 @@ void RobotArm::moveJoint(char joint, char direction) {
 }
 
 void RobotArm::moveGripper(char action) {
+  int targetAngle;
   if (action == 'o') {
-    gripperAngle = GRIPPER_OPEN;
-    gripperServo.write(gripperAngle);
+    targetAngle = GRIPPER_OPEN;
     Serial.println("Gripper opened");
   }
   else if (action == 'c') {
-    gripperAngle = GRIPPER_CLOSE;
-    gripperServo.write(gripperAngle);
+    targetAngle = GRIPPER_CLOSE;
     Serial.println("Gripper closed");
   }
+  else {
+    return;  // Invalid action
+  }
+
+  // Use smooth movement for gripper
+  moveToAngle(gripperServo, &gripperAngle, targetAngle);
 }
 
 void RobotArm::moveServo(Servo &servo, char direction, int *currentAngle) {
   int newAngle = *currentAngle;
+  int targetAngle;
 
   if (direction == '+') {
-    newAngle = min(newAngle + STEP_ANGLE, MAX_ANGLE);
+    targetAngle = min(newAngle + STEP_ANGLE, MAX_ANGLE);
   }
   else if (direction == '-') {
-    newAngle = max(newAngle - STEP_ANGLE, MIN_ANGLE);
+    targetAngle = max(newAngle - STEP_ANGLE, MIN_ANGLE);
+  }
+  else {
+    return; // Invalid direction
   }
 
-  if (newAngle != *currentAngle) {
-    *currentAngle = newAngle;
-    servo.write(newAngle);
-    delay(15);
+  // Smooth movement by gradually changing angle
+  if (targetAngle != *currentAngle) {
+    int increment = (targetAngle > *currentAngle) ? 1 : -1;
+    
+    while (*currentAngle != targetAngle) {
+      *currentAngle += increment;
+      servo.write(*currentAngle);
+      
+      // Adjust delay for smoother movement
+      // Lower delay = faster movement, higher delay = slower, smoother movement
+      delay(10);  // Reduced from previous 15ms 
+    }
   }
 }
 
 void RobotArm::moveToAngle(Servo &servo, int *currentAngle, int targetAngle) {
   targetAngle = constrain(targetAngle, MIN_ANGLE, MAX_ANGLE);
-  *currentAngle = targetAngle;
-  servo.write(targetAngle);
-  delay(500);
+  
+  if (targetAngle != *currentAngle) {
+    int increment = (targetAngle > *currentAngle) ? 1 : -1;
+    
+    while (*currentAngle != targetAngle) {
+      *currentAngle += increment;
+      servo.write(*currentAngle);
+      
+      // Consistent smooth movement across all methods
+      delay(10);  // Same smooth movement delay as in moveServo
+    }
+  }
 }
 
 void RobotArm::moveToHome() {
