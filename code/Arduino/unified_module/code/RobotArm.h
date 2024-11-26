@@ -68,7 +68,7 @@ class RobotArm {
     static const int HOME_BASE = 90;
     static const int HOME_SHOULDER = 90;
     static const int HOME_ELBOW = 90;
-    static const int HOME_GRIPPER = 0;
+    static const int HOME_GRIPPER = 90;
     static const int MAX_COMMANDS = 20;
 
     // Saved positions
