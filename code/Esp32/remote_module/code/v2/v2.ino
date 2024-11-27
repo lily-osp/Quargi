@@ -20,7 +20,7 @@
 DNSServer dnsServer;
 
 // Constants
-constexpr bool useESP32 = false; // Set to true for ESP32, false for ESP8266
+constexpr bool useESP32 = true; // Set to true for ESP32, false for ESP8266
 constexpr byte DNS_PORT = 53;
 constexpr size_t EEPROM_SIZE = 512;
 constexpr int WIFI_SSID_ADDR = 0;
@@ -86,11 +86,11 @@ void loadSettingsFromEEPROM() {
 
 // Functions: HTTP Handlers
 void handleRoot() {
-    server.send(200, "text/html", SETUP_UI); // Configuration UI
-}
-
-void handleCommandUI() {
-    server.send(200, "text/html", htmlContent); // Command/Remote UI
+    if (WiFi.status() == WL_CONNECTED) {
+        server.send(200, "text/html", REMOTE_UI);  // Connected mode - serve remote UI
+    } else {
+        server.send(200, "text/html", SETUP_UI);   // Setup mode - serve setup UI
+    }
 }
 
 void handleSetup() {

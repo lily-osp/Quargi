@@ -1,7 +1,4 @@
-#ifndef UI_INDEX_H
-#define UI_INDEX_H
-
-const char* htmlContent = R"html(
+const char REMOTE_UI[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
@@ -412,6 +409,4 @@ const char* htmlContent = R"html(
     </script>
 </body>
 </html>
-)html";
-
-#endif // UI_INDEX_H
+)rawliteral";
