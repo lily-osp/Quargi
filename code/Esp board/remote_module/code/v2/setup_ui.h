@@ -1,6 +1,4 @@
-// Configuration Page UI
 const char SETUP_UI[] PROGMEM = R"rawliteral(
-
 <!DOCTYPE html>
 <html>
 <head>

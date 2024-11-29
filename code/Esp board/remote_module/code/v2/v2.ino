@@ -1,6 +1,7 @@
+// General Includes
 #include <EEPROM.h>
-#include "setup_ui.h"      // Includes SETUP_UI for configuration UI
-#include "main_ui.h"   // Includes the command/remote UI
+#include "setup_ui.h"
+#include "main_ui.h"
 
 // Platform-Specific Includes
 #if defined(ESP32)
